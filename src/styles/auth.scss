@@ -1,0 +1,100 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.auth-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, $color-fondo-dark 0%, $color-primario-dark 60%, $color-primario 100%);
+  @include flex-center;
+  padding: $spacing-xl $spacing-md;
+
+  &__card {
+    background: $color-blanco;
+    border-radius: $radius-lg;
+    padding: $spacing-xxl;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: $shadow-lg;
+    animation: fadeInUp 0.4s ease;
+    border-top: 5px solid $color-secundario;
+
+    @include mobile { padding: $spacing-xl $spacing-lg; }
+  }
+
+  &__logo {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+
+    svg { font-size: 2.2rem; color: $color-secundario-dark; margin-bottom: 4px; }
+
+    h1 {
+      font-family: $font-display;
+      font-size: 2.1rem;
+      color: $color-primario;
+      letter-spacing: 0.02em;
+    }
+
+    p { color: $color-texto-suave; font-size: 0.85rem; margin-top: 2px; }
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    margin-bottom: $spacing-xs;
+  }
+
+  &__subtitle {
+    color: $color-texto-suave;
+    margin-bottom: $spacing-xl;
+    font-size: 0.92rem;
+  }
+
+  &__form {
+    .form-group { margin-bottom: $spacing-md; }
+  }
+
+  &__footer {
+    text-align: center;
+    margin-top: $spacing-lg;
+    font-size: 0.9rem;
+
+    a { color: $color-primario; font-weight: 600; &:hover { text-decoration: underline; } }
+  }
+
+  &__demo {
+    margin-top: $spacing-xl;
+    padding-top: $spacing-lg;
+    border-top: 1px dashed $color-borde;
+
+    p { font-size: 0.78rem; color: $color-texto-suave; margin-bottom: $spacing-sm; text-align: center; }
+  }
+
+  &__demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-sm;
+
+    button {
+      padding: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1.5px solid $color-borde;
+      border-radius: $radius-sm;
+      color: $color-texto-suave;
+      transition: $transition;
+
+      &:hover { border-color: $color-secundario; color: $color-secundario-dark; background: rgba($color-secundario, 0.08); }
+    }
+  }
+
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 1rem;
+    margin-top: $spacing-sm;
+  }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,64 @@
+// =============================================================
+// VARIABLES GLOBALES — _variables.scss
+// =============================================================
+// Paleta inspirada en la identidad del Colegio Bernardo O'Higgins:
+// azul institucional, dorado y rojo como acentos patrimoniales,
+// sobre fondos claros para máxima legibilidad en uso diario.
+// =============================================================
+
+// Colores
+$color-primario:        #1B3A6B; // azul institucional
+$color-primario-dark:   #102544;
+$color-primario-light:  #3D5F94;
+$color-secundario:      #C9A227; // dorado
+$color-secundario-dark: #A6840F;
+$color-acento:          #E8C94A;
+$color-acento-rojo:     #B5322C; // rojo institucional
+$color-acento-rojo-dark:#8F251F;
+$color-fondo:           #F4F6FA;
+$color-fondo-alt:       #E9EDF5;
+$color-fondo-dark:      #0E1E38;
+$color-texto:           #1E2430;
+$color-texto-suave:     #5A6478;
+$color-blanco:          #FFFFFF;
+$color-borde:           #D7DCE6;
+$color-error:           #C0392B;
+$color-exito:           #1E8E5A;
+$color-advertencia:     #B8860B;
+
+// Tipografía
+$font-display:  'Poppins', system-ui, sans-serif;
+$font-body:     'Inter', system-ui, sans-serif;
+$font-ui:       'Inter', system-ui, sans-serif;
+
+// Espaciado
+$spacing-xs:    4px;
+$spacing-sm:    8px;
+$spacing-md:    16px;
+$spacing-lg:    24px;
+$spacing-xl:    40px;
+$spacing-xxl:   64px;
+
+// Bordes
+$radius-sm:     6px;
+$radius-md:     10px;
+$radius-lg:     18px;
+$radius-full:   9999px;
+
+// Sombras
+$shadow-sm:     0 2px 8px rgba(16, 37, 68, 0.08);
+$shadow-md:     0 6px 24px rgba(16, 37, 68, 0.12);
+$shadow-lg:     0 12px 48px rgba(16, 37, 68, 0.18);
+
+// Transiciones
+$transition:    all 0.25s ease;
+
+// Layout
+$max-width:     1280px;
+$navbar-height: 72px;
+
+// Colores por rol (para badges / acentos visuales)
+$color-rol-estudiante: #2D6CDF;
+$color-rol-apoderado:  #1E8E5A;
+$color-rol-docente:    #C9A227;
+$color-rol-admin:      #B5322C;

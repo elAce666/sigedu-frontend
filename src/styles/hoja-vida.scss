@@ -1,0 +1,54 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.hv-resumen {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: $radius-full;
+    font-weight: 700;
+    font-size: 0.85rem;
+
+    &--pos { background: rgba($color-exito, 0.12); color: $color-exito; }
+    &--neg { background: rgba($color-error, 0.12); color: $color-error; }
+  }
+}
+
+.hv-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.hv-item {
+  @include card-base;
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-left: 4px solid transparent;
+
+  &--positiva { border-left-color: $color-exito; }
+  &--negativa { border-left-color: $color-error; }
+
+  &__icon {
+    @include flex-center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+  }
+
+  &--positiva .hv-item__icon { background: rgba($color-exito, 0.12); color: $color-exito; }
+  &--negativa .hv-item__icon { background: rgba($color-error, 0.12); color: $color-error; }
+
+  &__detalle { margin-bottom: 4px; }
+  &__meta { font-size: 0.8rem; }
+}

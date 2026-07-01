@@ -1,0 +1,16 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.estado-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  border-radius: $radius-full;
+  font-weight: 700;
+  font-size: 0.82rem;
+
+  &--presente { background: rgba($color-exito, 0.12); color: $color-exito; }
+  &--ausente  { background: rgba($color-error, 0.12); color: $color-error; }
+  &--atrasado { background: rgba($color-advertencia, 0.15); color: $color-advertencia; }
+}

@@ -1,0 +1,19 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.admin-grados {
+  .data-table td:last-child {
+    width: 96px;
+  }
+
+  .admin-form {
+    display: grid;
+    gap: $spacing-sm;
+
+    &__submit {
+      width: 100%;
+      justify-content: center;
+      margin-top: $spacing-sm;
+    }
+  }
+}

@@ -1,0 +1,139 @@
+@use 'variables' as *;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin container {
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+}
+
+@mixin card-base {
+  background: $color-blanco;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  border: 1px solid $color-borde;
+  transition: $transition;
+}
+
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-md;
+  font-family: $font-ui;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  border: 2px solid transparent;
+}
+
+@mixin btn-primary {
+  @include btn-base;
+  background-color: $color-primario;
+  color: $color-blanco;
+  border-color: $color-primario;
+
+  &:hover {
+    background-color: $color-primario-dark;
+    border-color: $color-primario-dark;
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
+}
+
+@mixin btn-secondary {
+  @include btn-base;
+  background-color: transparent;
+  color: $color-primario;
+  border-color: $color-primario;
+
+  &:hover {
+    background-color: $color-primario;
+    color: $color-blanco;
+  }
+}
+
+@mixin btn-gold {
+  @include btn-base;
+  background-color: $color-secundario;
+  color: $color-fondo-dark;
+  border-color: $color-secundario;
+
+  &:hover {
+    background-color: $color-secundario-dark;
+    border-color: $color-secundario-dark;
+  }
+}
+
+@mixin btn-rojo {
+  @include btn-base;
+  background-color: $color-acento-rojo;
+  color: $color-blanco;
+  border-color: $color-acento-rojo;
+
+  &:hover {
+    background-color: $color-acento-rojo-dark;
+    border-color: $color-acento-rojo-dark;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: 768px) { @content; }
+}
+
+@mixin tablet {
+  @media (max-width: 1024px) { @content; }
+}
+
+@mixin section-padding {
+  padding: $spacing-xxl 0;
+}
+
+@mixin form-input {
+  width: 100%;
+  padding: 10px $spacing-md;
+  border: 1.5px solid $color-borde;
+  border-radius: $radius-md;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  color: $color-texto;
+  background: $color-blanco;
+  transition: $transition;
+  outline: none;
+
+  &:focus {
+    border-color: $color-primario;
+    box-shadow: 0 0 0 3px rgba($color-primario, 0.15);
+  }
+
+  &::placeholder {
+    color: $color-texto-suave;
+  }
+}
+
+@mixin badge($color) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: rgba($color, 0.12);
+  color: $color;
+}

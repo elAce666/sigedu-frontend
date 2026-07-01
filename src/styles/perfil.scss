@@ -1,0 +1,43 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.perfil-card {
+  display: flex;
+  gap: $spacing-xl;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+
+  @include mobile { flex-direction: column; text-align: center; }
+
+  &__avatar {
+    @include flex-center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: rgba($color-primario, 0.1);
+    color: $color-primario;
+    font-size: 2.6rem;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    h2 { margin-bottom: $spacing-sm; }
+  }
+
+  &__detalles {
+    margin-top: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-size: 0.92rem;
+      color: $color-texto-suave;
+    }
+  }
+}
+
+.perfil-nota { font-size: 0.9rem; }

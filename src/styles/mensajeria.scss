@@ -1,0 +1,94 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.msg-tabs {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  border-bottom: 1px solid $color-borde;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: $spacing-sm $spacing-md;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: $color-texto-suave;
+    border-bottom: 3px solid transparent;
+    transition: $transition;
+
+    &:hover { color: $color-primario; }
+
+    &.active {
+      color: $color-primario;
+      border-bottom-color: $color-secundario;
+    }
+  }
+
+  &__badge {
+    background: $color-error;
+    color: $color-blanco;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: $radius-full;
+  }
+}
+
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.msg-item {
+  @include card-base;
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  cursor: pointer;
+
+  &:hover { box-shadow: $shadow-sm; border-color: $color-primario-light; }
+
+  &--no-leido {
+    border-left: 4px solid $color-secundario;
+    background: rgba($color-secundario, 0.04);
+
+    .msg-item__asunto { font-weight: 700; }
+  }
+
+  &__icon {
+    @include flex-center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba($color-primario, 0.1);
+    color: $color-primario;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+  }
+
+  &__body { flex: 1; min-width: 0; }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+
+    strong { font-size: 0.92rem; }
+  }
+
+  &__fecha { font-size: 0.78rem; margin-left: auto; }
+
+  &__asunto { font-size: 0.95rem; margin-bottom: 2px; }
+
+  &__contenido {
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

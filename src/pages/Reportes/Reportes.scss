@@ -1,0 +1,38 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.reportes {
+  display: grid;
+  gap: $spacing-xl;
+
+  &__filtro {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+
+    label {
+      font-weight: 600;
+      color: $color-texto-suave;
+    }
+
+    select {
+      @include form-input;
+      max-width: 280px;
+    }
+  }
+
+  &__section {
+    display: grid;
+    gap: $spacing-md;
+
+    h2 {
+      font-size: 1.1rem;
+      color: $color-texto;
+    }
+  }
+
+  &__stats {
+    margin-bottom: 0;
+  }
+}

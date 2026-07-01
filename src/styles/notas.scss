@@ -1,0 +1,35 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.notas {
+  &__curso {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: $spacing-md;
+    font-weight: 600;
+  }
+
+  &__chart {
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-md;
+      font-size: 1.05rem;
+    }
+  }
+}
+
+.nota-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: $radius-full;
+  font-weight: 700;
+  font-size: 0.85rem;
+
+  &--ok   { background: rgba($color-exito, 0.12); color: $color-exito; }
+  &--baja { background: rgba($color-error, 0.12); color: $color-error; }
+}
