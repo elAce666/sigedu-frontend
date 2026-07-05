@@ -1,6 +1,8 @@
 // =============================================================
 // SERVICIO DE CONFIGURACIÓN — services/configuracionService.js
 // =============================================================
+// NOTA: sigue en mock — el backend no expone configuración
+// institucional (clave/valor); candidato a futuro microservicio.
 import { getDB, setDB, nextId } from '../mock/db'
 import { resolveData, rejectError } from './apiClient'
 

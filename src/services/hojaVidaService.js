@@ -1,46 +1,49 @@
 // =============================================================
 // SERVICIO HOJA DE VIDA — services/hojaVidaService.js
 // =============================================================
-// Refleja el "Microservicio: Hoja de Vida": docente/inspector
-// registran anotaciones positivas o negativas, que se anexan al
-// historial del estudiante; apoderado/estudiante solo consultan.
+// Conectado al microservicio real de convivencia (8085):
+//   GET  /api/convivencia/anotaciones/estudiante/{run}
+//   POST /api/convivencia/anotaciones
+// El backend registra anotaciones con tipo OBSERVACION_POSITIVA /
+// OBSERVACION_NEGATIVA y toma el autor del token JWT; aquí se
+// adapta a la forma { tipo: 'positiva'|'negativa', detalle, autor }
+// que consumen las páginas.
 // =============================================================
-import { getDB, setDB, nextId } from '../mock/db'
-import { resolveData } from './apiClient'
-import { crearAlertaPorEstudiante } from './alertaService'
+import http from './httpClient'
+import { getAllUsuarios } from './usuarioService'
 
-export const getHojaVida = (estudianteRun) => {
-  const db = getDB()
-  const anotaciones = db.hojaVida
-    .filter((h) => h.estudianteRun === estudianteRun)
-    .map((h) => ({ ...h, autor: db.usuarios.find((u) => u.run === h.autorRun) }))
+const soloRun = (valor) => String(valor || '').split('-')[0].replace(/\D/g, '')
+
+const mapAnotacion = (dto) => ({
+  id: dto.id,
+  estudianteRun: dto.runEstudianteRef,
+  tipo: String(dto.tipo || '').includes('POSITIVA') ? 'positiva' : 'negativa',
+  detalle: dto.descripcion,
+  autorRun: dto.runAutorRef,
+  fecha: dto.fecha,
+})
+
+export const getHojaVida = async (estudianteRun) => {
+  const res = await http.get(`/api/convivencia/anotaciones/estudiante/${soloRun(estudianteRun)}`)
+  let directorio = {}
+  try {
+    const resU = await getAllUsuarios()
+    resU.data.forEach((u) => { directorio[u.run] = u })
+  } catch { /* sin directorio se muestra el RUN del autor */ }
+  const anotaciones = (res.data || [])
+    .map(mapAnotacion)
+    .map((a) => ({ ...a, autor: directorio[a.autorRun] || { run: a.autorRun, nombre: a.autorRun } }))
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-  return resolveData(anotaciones)
+  return { data: anotaciones }
 }
 
-export const registrarAnotacion = ({ estudianteRun, tipo, detalle, autorRun }) => {
-  const db = getDB()
-  const nueva = {
-    id: nextId(db.hojaVida),
-    estudianteRun,
-    tipo, // 'positiva' | 'negativa'
-    detalle,
-    autorRun,
+// data: { estudianteRun, tipo: 'positiva'|'negativa', detalle, autorRun }
+export const registrarAnotacion = async ({ estudianteRun, tipo, detalle }) => {
+  const res = await http.post('/api/convivencia/anotaciones', {
+    runEstudianteRef: soloRun(estudianteRun),
     fecha: new Date().toISOString().slice(0, 10),
-  }
-  db.hojaVida.push(nueva)
-  setDB(db)
-
-  if (tipo === 'negativa') {
-    crearAlertaPorEstudiante({
-      estudianteRun,
-      tipo: 'anotacion_negativa',
-      titulo: 'Nueva anotación negativa',
-      mensaje: `Se registró una anotación negativa: ${detalle}`,
-      origen: 'hojaVida',
-      referenciaId: nueva.id,
-    })
-  }
-
-  return resolveData(nueva)
+    tipo: tipo === 'positiva' ? 'OBSERVACION_POSITIVA' : 'OBSERVACION_NEGATIVA',
+    descripcion: detalle,
+  })
+  return { data: mapAnotacion(res.data) }
 }

@@ -1,83 +1,197 @@
 // =============================================================
 // SERVICIO DE USUARIOS — services/usuarioService.js
 // =============================================================
-import { getDB, setDB, nextId } from '../mock/db'
-import { resolveData, rejectError } from './apiClient'
+// Conectado al backend real:
+//  - identidad (8080): /api/usuarios (listar, crear, actualizar, eliminar)
+//  - academica (8083): /api/academica/cursos
+//  - gestionacademica (8087): /api/asignatura
+//  - matricula (8088): /api/matricula (para derivar el curso de cada estudiante)
+// Las respuestas del backend se adaptan a la forma que ya consumen
+// las páginas (run, nombre, rol, email, curso, ...). El RUN se
+// maneja SIN dígito verificador (igual que el login); `runCompleto`
+// incluye el DV para mostrar y para las rutas PUT/DELETE del backend.
+// =============================================================
+import http from './httpClient'
 
-const sinPassword = (u) => {
-  const { password, ...resto } = u
-  return resto
+const PRIORIDAD_ROLES = ['ADMIN', 'DIRECTIVO', 'INSPECTOR', 'FUNCIONARIO', 'DOCENTE', 'APODERADO', 'ESTUDIANTE']
+
+const rolPrincipal = (roles = []) => {
+  const rol = PRIORIDAD_ROLES.find((r) => roles.includes(r)) || roles[0] || 'ESTUDIANTE'
+  return rol === 'DIRECTIVO' ? 'ADMIN' : rol
 }
 
-export const getAllUsuarios = () => {
-  const db = getDB()
-  return resolveData(db.usuarios.map(sinPassword))
+// '12345678-5' | '12.345.678-5' | '12345678' -> { run: '12345678', dv: '5' }
+const partirRun = (valor) => {
+  const limpio = String(valor || '').replace(/\./g, '').trim()
+  const [run, dv] = limpio.split('-')
+  return { run: (run || '').replace(/\D/g, ''), dv: (dv || '').toUpperCase() }
 }
 
-export const getUsuarioByRun = (run) => {
-  const db = getDB()
-  const u = db.usuarios.find((x) => x.run === run)
-  return u ? resolveData(sinPassword(u)) : rejectError('Usuario no encontrado', 404)
-}
+const mapUsuario = (dto) => ({
+  run: dto.runUsuario,
+  dv: dto.dvrunUsuario,
+  runCompleto: `${dto.runUsuario}-${dto.dvrunUsuario}`,
+  nombre: [dto.pNombreUsuario, dto.pApellidoUsuario].filter(Boolean).join(' '),
+  email: dto.correoUsuario || '',
+  telefono: dto.telefonoUsuario || '',
+  genero: dto.genero,
+  rol: rolPrincipal(dto.roles),
+  roles: dto.roles || [],
+})
 
-export const getCursos = () => {
-  const db = getDB()
-  return resolveData(db.cursos)
-}
+const mapCurso = (dto) => ({
+  id: dto.id,
+  nombre: dto.nombre,
+  descripcion: dto.descripcion,
+  nivelId: dto.nivelId,
+  periodoId: dto.periodoId,
+  salaId: dto.salaId,
+  activo: dto.activo,
+  nivel: dto.nombre,
+  sala: dto.salaId ? `Sala ${dto.salaId}` : '',
+})
 
-export const getAsignaturas = () => {
-  const db = getDB()
-  return resolveData(db.asignaturas)
-}
+// El backend de asignaturas referencia un nivel; las páginas esperan
+// cursoId, así que se deriva buscando el curso de ese nivel.
+const mapAsignatura = (dto, cursos = []) => ({
+  id: dto.id_asignatura,
+  nombre: dto.nombre_asignatura,
+  docenteRun: dto.run_docente_ref,
+  nivelId: dto.id_nivel_ref,
+  cursoId: cursos.find((c) => c.nivelId === dto.id_nivel_ref)?.id ?? null,
+})
 
-export const getEstudiantesDeCurso = (cursoNombre) => {
-  const db = getDB()
-  return resolveData(
-    db.usuarios.filter((u) => u.rol === 'ESTUDIANTE' && u.curso === cursoNombre).map(sinPassword)
-  )
-}
-
-// Devuelve los estudiantes "vinculados" a un usuario:
-//  - APODERADO  -> sus pupilos
-//  - ESTUDIANTE -> él mismo
-//  - DOCENTE/ADMIN -> todos los estudiantes (para fines de gestión)
-export const getEstudiantesVinculados = (usuario) => {
-  const db = getDB()
-  let lista = []
-  if (usuario.rol === 'APODERADO') {
-    const apoderado = db.usuarios.find((u) => u.run === usuario.run)
-    lista = db.usuarios.filter((u) => apoderado?.pupilosRun?.includes(u.run))
-  } else if (usuario.rol === 'ESTUDIANTE') {
-    lista = db.usuarios.filter((u) => u.run === usuario.run)
-  } else {
-    lista = db.usuarios.filter((u) => u.rol === 'ESTUDIANTE')
+// Mapa runEstudiante -> nombre de curso, derivado de las matrículas.
+// Si el rol del token no puede listar matrículas, se degrada a vacío.
+const cargarCursosPorEstudiante = async (cursos) => {
+  try {
+    const res = await http.get('/api/matricula')
+    const porEstudiante = {}
+    for (const m of res.data || []) {
+      const curso = cursos.find((c) => c.id === m.id_curso_ref)
+      if (curso) porEstudiante[m.run_estudiante_ref] = curso.nombre
+    }
+    return porEstudiante
+  } catch {
+    return {}
   }
-  return resolveData(lista.map(sinPassword))
 }
 
-export const updateUsuario = (run, data) => {
-  const db = getDB()
-  const idx = db.usuarios.findIndex((u) => u.run === run)
-  if (idx === -1) return rejectError('Usuario no encontrado', 404)
-  db.usuarios[idx] = { ...db.usuarios[idx], ...data }
-  setDB(db)
-  return resolveData(sinPassword(db.usuarios[idx]))
+export const getCursos = async () => {
+  const res = await http.get('/api/academica/cursos')
+  return { data: (res.data || []).map(mapCurso) }
 }
 
-export const createUsuario = (data) => {
-  const db = getDB()
-  if (db.usuarios.some((u) => u.email === data.email)) {
-    return rejectError('Ya existe un usuario con ese correo', 409)
+export const getAsignaturas = async () => {
+  let cursos = []
+  try {
+    cursos = (await getCursos()).data
+  } catch { /* sin cursos igual se listan las asignaturas */ }
+  const res = await http.get('/api/asignatura')
+  return { data: (res.data || []).map((a) => mapAsignatura(a, cursos)) }
+}
+
+export const getAllUsuarios = async () => {
+  let res
+  try {
+    res = await http.get('/api/usuarios')
+  } catch (err) {
+    // Roles sin permiso de listado (p. ej. APODERADO) reciben 403;
+    // se degrada a lista vacía para no romper las páginas que
+    // solo usan el directorio como información complementaria.
+    if (err.response?.status === 403) return { data: [] }
+    throw err
   }
-  const nuevo = { run: data.run || `RUN-${nextId(db.usuarios)}`, ...data }
-  db.usuarios.push(nuevo)
-  setDB(db)
-  return resolveData(sinPassword(nuevo))
+  const usuarios = (res.data || []).map(mapUsuario)
+  try {
+    const cursos = (await getCursos()).data
+    const cursoPorRun = await cargarCursosPorEstudiante(cursos)
+    usuarios.forEach((u) => { u.curso = cursoPorRun[u.run] || null })
+  } catch { /* el curso es informativo; sin matrícula queda vacío */ }
+  return { data: usuarios }
 }
 
-export const deleteUsuario = (run) => {
-  const db = getDB()
-  db.usuarios = db.usuarios.filter((u) => u.run !== run)
-  setDB(db)
-  return resolveData({ ok: true })
+export const getUsuarioByRun = async (runConDv) => {
+  const { run, dv } = partirRun(runConDv)
+  const res = await http.get(`/api/usuarios/${run}/${dv}`)
+  return { data: mapUsuario(res.data) }
+}
+
+export const getEstudiantesDeCurso = async (cursoNombre) => {
+  const res = await getAllUsuarios()
+  return { data: res.data.filter((u) => u.rol === 'ESTUDIANTE' && (!cursoNombre || u.curso === cursoNombre)) }
+}
+
+// APODERADO: identidad no expone "listar mis pupilos", así que el
+// intento de listar usuarios fallará (403) y se degrada a lista vacía.
+export const getEstudiantesVinculados = async (usuario) => {
+  if (usuario?.rol === 'ESTUDIANTE') {
+    return { data: [{ run: usuario.run, nombre: usuario.nombre || usuario.run, rol: 'ESTUDIANTE', curso: usuario.curso || '' }] }
+  }
+  try {
+    const res = await getAllUsuarios()
+    return { data: res.data.filter((u) => u.rol === 'ESTUDIANTE') }
+  } catch {
+    return { data: [] }
+  }
+}
+
+// data viene del formulario del panel: { nombre, run, email, rol,
+// curso?, genero?, runApoderado?, password }.
+export const createUsuario = async (data) => {
+  const { run, dv } = partirRun(data.run)
+  const partesNombre = String(data.nombre || '').trim().split(/\s+/)
+  const pNombre = partesNombre[0] || ''
+  const pApellido = partesNombre.length > 1 ? partesNombre[partesNombre.length - 1] : '—'
+  const osNombre = partesNombre.length > 2 ? partesNombre.slice(1, -1).join(' ') : null
+
+  const tipoUsuario = data.rol === 'ADMIN' ? 'DIRECTIVO' : data.rol
+  const campoPorTipo = {
+    DIRECTIVO: 'Directivo/a',
+    DOCENTE: data.especialidad || 'General',
+    APODERADO: data.parentesco || 'Apoderado/a',
+    ESTUDIANTE: 'Pupilo/a',
+    INSPECTOR: 'General',
+    FUNCIONARIO: 'Funcionario/a',
+  }
+
+  const res = await http.post('/api/usuarios', {
+    runUsuario: run,
+    dvrunUsuario: dv,
+    pNombreUsuario: pNombre,
+    osNombreUsuario: osNombre,
+    pApellidoUsuario: pApellido,
+    osApellidoUsuario: null,
+    correoUsuario: data.email,
+    telefonoUsuario: data.telefono || null,
+    genero: data.genero || 'M',
+    contrasena: data.password || 'sigedu123',
+    tipoUsuario,
+    campoEspecifico: campoPorTipo[tipoUsuario] || 'General',
+    runApoderado: tipoUsuario === 'ESTUDIANTE' ? partirRun(data.runApoderado).run : null,
+  })
+  return { data: mapUsuario(res.data) }
+}
+
+export const updateUsuario = async (runConDv, data) => {
+  const { run, dv } = partirRun(data.runCompleto || runConDv)
+  const cuerpo = {}
+  if (data.nombre) {
+    const partes = String(data.nombre).trim().split(/\s+/)
+    cuerpo.pNombreUsuario = partes[0]
+    if (partes.length > 1) cuerpo.pApellidoUsuario = partes[partes.length - 1]
+  }
+  if (data.email) cuerpo.correoUsuario = data.email
+  if (data.telefono) cuerpo.telefonoUsuario = data.telefono
+  if (data.genero) cuerpo.genero = data.genero
+  if (data.password) cuerpo.contrasena = data.password
+
+  const res = await http.put(`/api/usuarios/${run}/${dv}`, cuerpo)
+  return { data: mapUsuario(res.data) }
+}
+
+export const deleteUsuario = async (runConDv) => {
+  const { run, dv } = partirRun(runConDv)
+  await http.delete(`/api/usuarios/${run}/${dv}`)
+  return { data: { ok: true } }
 }

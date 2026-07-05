@@ -28,7 +28,11 @@
 
   &__cta {
     text-align: center;
-    background: $color-primario;
+    // Foto referencial (Unsplash, uso libre) con overlay institucional.
+    background:
+      linear-gradient(135deg, rgba($color-primario, 0.92), rgba($color-primario, 0.88)),
+      url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat,
+      $color-primario;
     color: $color-blanco;
     padding: $spacing-xxl $spacing-lg;
     border-radius: $radius-lg;

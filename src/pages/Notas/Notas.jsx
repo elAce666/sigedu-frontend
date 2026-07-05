@@ -43,7 +43,12 @@ export default function Notas() {
         if (esDocente) {
           const cursosDocenteIds = [...new Set(asignaturasData.filter((a) => a.docenteRun === usuario.run).map((a) => a.cursoId))]
           const cursosDocenteNombres = resC.data.filter((curso) => cursosDocenteIds.includes(curso.id)).map((curso) => curso.nombre)
-          estudiantesData = estudiantesData.filter((estudiante) => cursosDocenteNombres.includes(estudiante.curso))
+          // Si no hay info de curso (p. ej. sin matrículas aún), no
+          // se filtra para no dejar la lista vacía.
+          const hayInfoDeCurso = estudiantesData.some((e) => e.curso)
+          if (hayInfoDeCurso) {
+            estudiantesData = estudiantesData.filter((estudiante) => cursosDocenteNombres.includes(estudiante.curso))
+          }
           asignaturasData = asignaturasData.filter((a) => a.docenteRun === usuario.run)
         }
 
