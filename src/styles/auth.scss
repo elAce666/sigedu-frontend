@@ -69,7 +69,18 @@
     padding-top: $spacing-lg;
     border-top: 1px dashed $color-borde;
 
-    p { font-size: 0.78rem; color: $color-texto-suave; margin-bottom: $spacing-sm; text-align: center; }
+    summary {
+      font-size: 0.75rem;
+      color: $color-texto-suave;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      list-style-position: inside;
+
+      &:hover { color: $color-primario; }
+    }
+
+    p { font-size: 0.78rem; color: $color-texto-suave; margin: $spacing-sm 0; text-align: center; }
   }
 
   &__demo-grid {

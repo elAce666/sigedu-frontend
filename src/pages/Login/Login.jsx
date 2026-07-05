@@ -92,7 +92,10 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="auth-page__demo">
+        {/* Cuentas de prueba ocultas de la vista principal: siguen
+            disponibles para desarrollo, pero colapsadas por defecto. */}
+        <details className="auth-page__demo">
+          <summary>Acceso de desarrollo</summary>
           <p>Cuentas de demostración (clic para autocompletar):</p>
           <div className="auth-page__demo-grid">
             {CUENTAS_DEMO.map((c) => (
@@ -101,7 +104,7 @@ export default function Login() {
               </button>
             ))}
           </div>
-        </div>
+        </details>
 
         <p className="auth-page__footer">
           <Link to="/">← Volver al sitio del colegio</Link>
