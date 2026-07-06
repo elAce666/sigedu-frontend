@@ -23,6 +23,8 @@ import AdminConfiguracion from './pages/AdminConfiguracion/AdminConfiguracion'
 import AdminGrados from './pages/AdminGrados/AdminGrados'
 import AdminPagos from './pages/AdminPagos/AdminPagos'
 import AdminAsignacion from './pages/AdminAsignacion/AdminAsignacion'
+import AdminMatriculas from './pages/AdminMatriculas/AdminMatriculas'
+import Reuniones from './pages/Reuniones/Reuniones'
 import Reportes from './pages/Reportes/Reportes'
 import MiPerfil from './pages/MiPerfil/MiPerfil'
 
@@ -109,6 +111,16 @@ export default function App() {
           <Route path="/admin/asignacion" element={
             <PrivateRoute roles={['ADMIN']}>
               <Layout withFooter={false}><div className="page-wrapper"><AdminAsignacion /></div></Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/admin/matriculas" element={
+            <PrivateRoute roles={['ADMIN']}>
+              <Layout withFooter={false}><div className="page-wrapper"><AdminMatriculas /></div></Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/admin/reuniones" element={
+            <PrivateRoute roles={['ADMIN']}>
+              <Layout withFooter={false}><div className="page-wrapper"><Reuniones /></div></Layout>
             </PrivateRoute>
           } />
           <Route path="/reportes" element={

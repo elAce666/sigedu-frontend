@@ -1,6 +1,8 @@
 // =============================================================
 // SERVICIO DE ASISTENCIA — services/asistenciaService.js
 // =============================================================
+// NOTA: sigue en mock — no existe un microservicio de asistencia
+// en el backend (los 10 MS actuales no cubren este dominio).
 import { getDB, setDB, nextId } from '../mock/db'
 import { resolveData, rejectError } from './apiClient'
 

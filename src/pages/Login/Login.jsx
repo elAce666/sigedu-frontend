@@ -20,11 +20,13 @@ const ROL_REDIRECT = {
   ADMIN: '/admin',
 }
 
+// Cuentas reales del backend (RUN sin dígito verificador). El correo
+// solo funciona contra el mock local si el backend está caído.
 const CUENTAS_DEMO = [
-  { rol: 'Directivo/Admin', email: 'admin@sigedu.cl', password: 'admin123' },
-  { rol: 'Docente', email: 'mgonzalez@sigedu.cl', password: 'docente123' },
-  { rol: 'Apoderado', email: 'prodriguez@gmail.com', password: 'apoderado123' },
-  { rol: 'Estudiante', email: 'jrodriguez@sigedu.cl', password: 'estudiante123' },
+  { rol: 'Admin', usuario: '12345678', password: 'admin123' },
+  { rol: 'Docente', usuario: '11111111', password: 'docente123' },
+  { rol: 'Apoderado', usuario: '33333333', password: 'apoderado123' },
+  { rol: 'Estudiante', usuario: '22222222', password: 'estudiante123' },
 ]
 
 export default function Login() {
@@ -48,7 +50,7 @@ export default function Login() {
   }
 
   const rellenarDemo = (cuenta) => {
-    setValue('email', cuenta.email)
+    setValue('usuario', cuenta.usuario)
     setValue('password', cuenta.password)
   }
 
@@ -66,13 +68,13 @@ export default function Login() {
 
         <form className="auth-page__form" onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
-            <label>Correo electrónico</label>
+            <label>RUN o correo electrónico</label>
             <input
-              type="email"
-              placeholder="nombre@sigedu.cl"
-              {...register('email', { required: 'El correo es obligatorio' })}
+              type="text"
+              placeholder="12345678 (sin DV) o nombre@sigedu.cl"
+              {...register('usuario', { required: 'El RUN o correo es obligatorio' })}
             />
-            {errors.email && <span className="error-msg">{errors.email.message}</span>}
+            {errors.usuario && <span className="error-msg">{errors.usuario.message}</span>}
           </div>
 
           <div className="form-group">
@@ -90,16 +92,19 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="auth-page__demo">
+        {/* Cuentas de prueba ocultas de la vista principal: siguen
+            disponibles para desarrollo, pero colapsadas por defecto. */}
+        <details className="auth-page__demo">
+          <summary>Acceso de desarrollo</summary>
           <p>Cuentas de demostración (clic para autocompletar):</p>
           <div className="auth-page__demo-grid">
             {CUENTAS_DEMO.map((c) => (
-              <button key={c.email} type="button" onClick={() => rellenarDemo(c)}>
+              <button key={c.usuario} type="button" onClick={() => rellenarDemo(c)}>
                 {c.rol}
               </button>
             ))}
           </div>
-        </div>
+        </details>
 
         <p className="auth-page__footer">
           <Link to="/">← Volver al sitio del colegio</Link>

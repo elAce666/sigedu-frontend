@@ -71,6 +71,8 @@ export default function Navbar() {
                     <NavLink to="/admin/configuracion" className="navbar__user-link" onClick={closeMenu}>Configuración</NavLink>
                     <NavLink to="/admin/grados" className="navbar__user-link" onClick={closeMenu}>Grados</NavLink>
                     <NavLink to="/admin/asignacion" className="navbar__user-link" onClick={closeMenu}>Asignación</NavLink>
+                    <NavLink to="/admin/matriculas" className="navbar__user-link" onClick={closeMenu}>Matrículas</NavLink>
+                    <NavLink to="/admin/reuniones" className="navbar__user-link" onClick={closeMenu}>Reuniones</NavLink>
                     <NavLink to="/admin/pagos" className="navbar__user-link" onClick={closeMenu}>Pagos</NavLink>
                     <NavLink to="/reportes" className="navbar__user-link" onClick={closeMenu}>Reportes</NavLink>
                     <NavLink to="/mensajeria" className="navbar__user-link" onClick={closeMenu}>Mensajería</NavLink>

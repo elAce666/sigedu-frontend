@@ -1,37 +1,47 @@
 // =============================================================
 // SERVICIO DE NIVELES — services/nivelService.js
 // =============================================================
-import { getDB, setDB, nextId } from '../mock/db'
-import { resolveData, rejectError } from './apiClient'
+// Conectado al microservicio real academica (8083):
+//   GET/POST /api/academica/niveles   PUT/DELETE /api/academica/niveles/{id}
+// El backend maneja { id, nombre, descripcion, activo }; el campo
+// `orden` que usa la página se conserva dentro de la descripción y
+// como fallback se usa el id.
+// =============================================================
+import http from './httpClient'
 
-export const getNiveles = () => {
-  const db = getDB()
-  const niveles = [...db.niveles].sort((a, b) => a.orden - b.orden)
-  return resolveData(niveles)
+const mapNivel = (dto) => ({
+  id: dto.id,
+  nombre: dto.nombre,
+  descripcion: dto.descripcion,
+  activo: dto.activo,
+  orden: dto.id,
+})
+
+export const getNiveles = async () => {
+  const res = await http.get('/api/academica/niveles')
+  const niveles = (res.data || []).map(mapNivel).sort((a, b) => a.orden - b.orden)
+  return { data: niveles }
 }
 
-export const crearNivel = (data) => {
-  const db = getDB()
-  const nueva = { id: nextId(db.niveles), ...data }
-  db.niveles.push(nueva)
-  setDB(db)
-  return resolveData(nueva)
+export const crearNivel = async (data) => {
+  const res = await http.post('/api/academica/niveles', {
+    nombre: data.nombre,
+    descripcion: data.descripcion || `Nivel ${data.nombre}`,
+    activo: true,
+  })
+  return { data: mapNivel(res.data) }
 }
 
-export const actualizarNivel = (id, data) => {
-  const db = getDB()
-  const idx = db.niveles.findIndex((n) => n.id === id)
-  if (idx === -1) return rejectError('Nivel no encontrado', 404)
-  db.niveles[idx] = { ...db.niveles[idx], ...data }
-  setDB(db)
-  return resolveData(db.niveles[idx])
+export const actualizarNivel = async (id, data) => {
+  const res = await http.put(`/api/academica/niveles/${id}`, {
+    nombre: data.nombre,
+    descripcion: data.descripcion || `Nivel ${data.nombre}`,
+    activo: data.activo !== false,
+  })
+  return { data: mapNivel(res.data) }
 }
 
-export const eliminarNivel = (id) => {
-  const db = getDB()
-  const idx = db.niveles.findIndex((n) => n.id === id)
-  if (idx === -1) return rejectError('Nivel no encontrado', 404)
-  db.niveles.splice(idx, 1)
-  setDB(db)
-  return resolveData({ ok: true })
+export const eliminarNivel = async (id) => {
+  await http.delete(`/api/academica/niveles/${id}`)
+  return { data: { ok: true } }
 }

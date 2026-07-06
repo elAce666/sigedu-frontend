@@ -3,7 +3,12 @@
 
 .auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, $color-fondo-dark 0%, $color-primario-dark 60%, $color-primario 100%);
+  // Foto referencial (Unsplash, uso libre) con overlay; el gradiente
+  // queda como respaldo si no hay conexión.
+  background:
+    linear-gradient(135deg, rgba($color-fondo-dark, 0.92) 0%, rgba($color-primario-dark, 0.88) 60%, rgba($color-primario, 0.85) 100%),
+    url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat,
+    linear-gradient(135deg, $color-fondo-dark 0%, $color-primario-dark 60%, $color-primario 100%);
   @include flex-center;
   padding: $spacing-xl $spacing-md;
 
@@ -64,7 +69,18 @@
     padding-top: $spacing-lg;
     border-top: 1px dashed $color-borde;
 
-    p { font-size: 0.78rem; color: $color-texto-suave; margin-bottom: $spacing-sm; text-align: center; }
+    summary {
+      font-size: 0.75rem;
+      color: $color-texto-suave;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      list-style-position: inside;
+
+      &:hover { color: $color-primario; }
+    }
+
+    p { font-size: 0.78rem; color: $color-texto-suave; margin: $spacing-sm 0; text-align: center; }
   }
 
   &__demo-grid {

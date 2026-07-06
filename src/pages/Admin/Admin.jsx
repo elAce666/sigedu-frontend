@@ -48,7 +48,7 @@ export default function Admin() {
   const onGuardar = async (data) => {
     try {
       if (editando) {
-        await updateUsuario(editando.run, data)
+        await updateUsuario(editando.runCompleto || editando.run, data)
         toast.success('Usuario actualizado')
       } else {
         await createUsuario({ ...data, password: 'sigedu123' })
@@ -108,13 +108,13 @@ export default function Admin() {
             {listaFiltrada.map((u) => (
               <tr key={u.run}>
                 <td>{u.nombre}</td>
-                <td>{u.run}</td>
+                <td>{u.runCompleto || u.run}</td>
                 <td><RoleBadge rol={u.rol} /></td>
                 <td>{u.email}</td>
                 <td>{u.curso || u.cursoJefatura || '—'}</td>
                 <td className="admin-acciones">
                   <button onClick={() => abrirEditar(u)} aria-label="Editar"><RiPencilLine /></button>
-                  <button onClick={() => onEliminar(u.run)} className="danger" aria-label="Eliminar"><RiDeleteBinLine /></button>
+                  <button onClick={() => onEliminar(u.runCompleto || u.run)} className="danger" aria-label="Eliminar"><RiDeleteBinLine /></button>
                 </td>
               </tr>
             ))}
@@ -149,8 +149,15 @@ export default function Admin() {
               </select>
             </div>
             <div className="form-group">
-              <label>Curso (si aplica)</label>
-              <input type="text" placeholder="Ej: 7° Básico A" {...register('curso')} />
+              <label>Género</label>
+              <select {...register('genero', { required: true })}>
+                <option value="F">Femenino</option>
+                <option value="M">Masculino</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>RUN del apoderado (solo estudiantes)</label>
+              <input type="text" placeholder="33333333-3" {...register('runApoderado')} />
             </div>
             <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ width: '100%', justifyContent: 'center' }}>
               {isSubmitting ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear usuario'}

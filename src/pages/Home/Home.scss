@@ -11,9 +11,13 @@
   &__hero {
     position: relative;
     overflow: hidden;
+    // Foto referencial (Unsplash, uso libre) con overlay institucional;
+    // si no hay internet, el gradiente actúa como fondo de respaldo.
     background:
-      linear-gradient(135deg, rgba($color-primario-dark, 0.98), rgba($color-primario, 0.95)),
-      repeating-linear-gradient(115deg, rgba($color-blanco, 0.04) 0 2px, transparent 2px 58px);
+      linear-gradient(135deg, rgba($color-primario-dark, 0.93), rgba($color-primario, 0.88)),
+      repeating-linear-gradient(115deg, rgba($color-blanco, 0.04) 0 2px, transparent 2px 58px),
+      url('https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1600&q=60') center/cover no-repeat,
+      linear-gradient(135deg, rgba($color-primario-dark, 1), rgba($color-primario, 1));
     color: $color-blanco;
     padding: $navbar-height + $spacing-xxl 0 $spacing-xxl;
 
