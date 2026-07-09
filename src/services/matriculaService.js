@@ -1,11 +1,11 @@
 // =============================================================
-// SERVICIO DE MATRÍCULA — services/matriculaService.js
+// SERVICIO DE MATRICULA - services/matriculaService.js
 // =============================================================
-// Conectado al microservicio real de matrícula (8088):
+// Conectado al microservicio real de matricula (8088):
 //   GET/POST /api/matricula   PUT/DELETE /api/matricula/{id}
-// y a academica (8083) para el catálogo de periodos.
+// y a academica (8083) para el catalogo de periodos.
 // El backend usa snake_case (run_estudiante_ref, id_curso_ref...);
-// aquí se adapta a camelCase para las páginas.
+// aqui se adapta a camelCase para las paginas.
 // =============================================================
 import http from './httpClient'
 

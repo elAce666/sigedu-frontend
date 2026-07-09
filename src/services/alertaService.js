@@ -1,5 +1,5 @@
-﻿// =============================================================
-// SERVICIO DE ALERTAS — services/alertaService.js
+// =============================================================
+// SERVICIO DE ALERTAS - services/alertaService.js
 // =============================================================
 // Coherente con los MS actuales: las notificaciones se representan
 // como mensajes recibidos del microservicio mensajeria (8089).

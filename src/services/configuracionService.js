@@ -1,5 +1,5 @@
-﻿// =============================================================
-// SERVICIO DE CONFIGURACION — services/configuracionService.js
+// =============================================================
+// SERVICIO DE CONFIGURACION - services/configuracionService.js
 // =============================================================
 // Conectado al microservicio real academica (8083):
 //   GET/POST /api/academica/configuraciones

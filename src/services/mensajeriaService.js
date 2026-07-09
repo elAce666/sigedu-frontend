@@ -13,7 +13,7 @@
 import http from './httpClient'
 import { getAllUsuarios } from './usuarioService'
 
-const soloRun = (valor) => String(valor || '').split('-')[0].replace(/D/g, '')
+const soloRun = (valor) => String(valor || '').split('-')[0].replace(/\D/g, '')
 
 const mapMensaje = (dto) => ({
   id: dto.idMensaje,

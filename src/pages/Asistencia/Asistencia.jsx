@@ -32,12 +32,18 @@ export default function Asistencia() {
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm()
 
   useEffect(() => {
+    setLoading(true)
     const cargarEstudiantes = esDocente ? getEstudiantesPorDocente(usuario.run) : getEstudiantesVinculados(usuario)
     cargarEstudiantes
       .then((res) => {
         const estudiantesData = res.data
         setEstudiantes(estudiantesData)
         setSeleccionado(estudiantesData[0]?.run || '')
+      })
+      .catch(() => {
+        setEstudiantes([])
+        setSeleccionado('')
+        toast.error('No se pudieron cargar los estudiantes')
       })
       .finally(() => setLoading(false))
   }, [usuario, esDocente])
@@ -50,6 +56,11 @@ export default function Asistencia() {
     }
     Promise.all([getAsistenciaPorEstudiante(seleccionado), getResumenAsistencia(seleccionado)])
       .then(([resR, resS]) => { setRegistros(resR.data); setResumen(resS.data) })
+      .catch(() => {
+        setRegistros([])
+        setResumen(null)
+        toast.error('No se pudo cargar la asistencia')
+      })
   }, [seleccionado])
 
   useEffect(() => { cargar() }, [cargar])

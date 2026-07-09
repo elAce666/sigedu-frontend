@@ -33,7 +33,7 @@ export default function Navbar() {
           <span>SIGEDU</span>
         </Link>
 
-        <button className="navbar__burger" onClick={() => setMenuOpen((v) => !v)} aria-label="Menú">
+        <button className="navbar__burger" onClick={() => setMenuOpen((v) => !v)} aria-label="Menu">
           {menuOpen ? <RiCloseLine /> : <RiMenuLine />}
         </button>
 
@@ -58,19 +58,19 @@ export default function Navbar() {
                     <NavLink to="/notas" className="navbar__user-link" onClick={closeMenu}>Notas</NavLink>
                     <NavLink to="/asistencia" className="navbar__user-link" onClick={closeMenu}>Asistencia</NavLink>
                     <NavLink to="/hoja-de-vida" className="navbar__user-link" onClick={closeMenu}>Hoja de Vida</NavLink>
-                    <NavLink to="/mensajeria" className="navbar__user-link" onClick={closeMenu}>Mensajería</NavLink>
+                    <NavLink to="/mensajeria" className="navbar__user-link" onClick={closeMenu}>Mensajeria</NavLink>
                   </>
                 )}
                 {hasRole('ADMIN') && (
                   <>
-                    <NavLink to="/admin" className="navbar__user-link" onClick={closeMenu}>Panel de Gestión</NavLink>
-                    <NavLink to="/admin/configuracion" className="navbar__user-link" onClick={closeMenu}>Configuración</NavLink>
+                    <NavLink to="/admin" className="navbar__user-link" onClick={closeMenu}>Panel de Gestion</NavLink>
+                    <NavLink to="/admin/configuracion" className="navbar__user-link" onClick={closeMenu}>Configuracion</NavLink>
                     <NavLink to="/admin/grados" className="navbar__user-link" onClick={closeMenu}>Grados</NavLink>
-                    <NavLink to="/admin/asignacion" className="navbar__user-link" onClick={closeMenu}>Asignación</NavLink>
-                    <NavLink to="/admin/matriculas" className="navbar__user-link" onClick={closeMenu}>Matrículas</NavLink>
+                    <NavLink to="/admin/asignacion" className="navbar__user-link" onClick={closeMenu}>Asignacion</NavLink>
+                    <NavLink to="/admin/matriculas" className="navbar__user-link" onClick={closeMenu}>Matriculas</NavLink>
                     <NavLink to="/admin/reuniones" className="navbar__user-link" onClick={closeMenu}>Reuniones</NavLink>
                     <NavLink to="/reportes" className="navbar__user-link" onClick={closeMenu}>Reportes</NavLink>
-                    <NavLink to="/mensajeria" className="navbar__user-link" onClick={closeMenu}>Mensajería</NavLink>
+                    <NavLink to="/mensajeria" className="navbar__user-link" onClick={closeMenu}>Mensajeria</NavLink>
                   </>
                 )}
                 <NavLink to="/mi-perfil" className="navbar__user-link navbar__user-link--name" onClick={closeMenu}>

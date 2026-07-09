@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 // =============================================================
 // Proxy de desarrollo hacia los microservicios SIGEDU.
 // El frontend llama rutas relativas /api/** y el dev-server las
-// reenvía al microservicio dueño de cada prefijo, evitando CORS
-// sin tocar la configuración del backend.
+// reenvia al microservicio dueno de cada prefijo, evitando CORS
+// sin tocar la configuracion del backend.
 // Los targets se leen de .env.development (VITE_API_*).
 // =============================================================
 export default defineConfig(({ mode }) => {

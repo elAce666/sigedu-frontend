@@ -1,13 +1,13 @@
 // =============================================================
-// SERVICIO DE NOTAS — services/notaService.js
+// SERVICIO DE NOTAS - services/notaService.js
 // =============================================================
 // Conectado al microservicio real de notas (8090):
 //   GET  /api/notas/estudiante/{run}
 //   POST /api/notas   PUT /api/notas/{id}   DELETE /api/notas/{id}
 // El backend guarda { idNota, runEstudiante, codigoAsignatura,
 // periodo, tipoEvaluacion, ponderacion, calificacion, observaciones };
-// aquí se adapta a la forma { id, valor, fecha, descripcion,
-// asignatura } que consumen las páginas. Los promedios se calculan
+// aqui se adapta a la forma { id, valor, fecha, descripcion,
+// asignatura } que consumen las paginas. Los promedios se calculan
 // en el cliente a partir de las notas reales.
 // =============================================================
 import http from './httpClient'
@@ -35,7 +35,7 @@ const cargarNotas = async (estudianteRun) => {
   let asignaturas = []
   try {
     asignaturas = (await getAsignaturas()).data
-  } catch { /* sin catálogo, la nota se muestra sin nombre de asignatura */ }
+  } catch { /* sin catalogo, la nota se muestra sin nombre de asignatura */ }
   const res = await http.get(`/api/notas/estudiante/${soloRun(estudianteRun)}`)
   return (res.data || []).map((n) => mapNota(n, asignaturas))
 }

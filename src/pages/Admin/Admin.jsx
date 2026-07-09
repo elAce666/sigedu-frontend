@@ -26,8 +26,21 @@ export default function Admin() {
   const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm()
 
   const cargar = () => {
-    Promise.all([getAllUsuarios(), getCursos()])
-      .then(([resU, resC]) => { setUsuarios(resU.data); setCursos(resC.data) })
+    setLoading(true)
+    Promise.allSettled([getAllUsuarios(), getCursos()])
+      .then(([usuariosRes, cursosRes]) => {
+        if (usuariosRes.status === 'fulfilled') setUsuarios(usuariosRes.value.data)
+        else {
+          setUsuarios([])
+          toast.error('No se pudieron cargar los usuarios')
+        }
+
+        if (cursosRes.status === 'fulfilled') setCursos(cursosRes.value.data)
+        else {
+          setCursos([])
+          toast.error('No se pudieron cargar los cursos')
+        }
+      })
       .finally(() => setLoading(false))
   }
 

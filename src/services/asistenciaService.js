@@ -1,5 +1,5 @@
-﻿// =============================================================
-// SERVICIO DE ASISTENCIA — services/asistenciaService.js
+// =============================================================
+// SERVICIO DE ASISTENCIA - services/asistenciaService.js
 // =============================================================
 // Conectado al microservicio real de matricula (8088):
 //   GET  /api/matricula/asistencia/estudiante/{run}

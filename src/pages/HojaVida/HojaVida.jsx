@@ -1,10 +1,10 @@
 // =============================================================
-// PÁGINA HOJA DE VIDA — pages/HojaVida/HojaVida.jsx
+// PAGINA HOJA DE VIDA - pages/HojaVida/HojaVida.jsx
 // =============================================================
 // DOCENTE -> registra anotaciones positivas/negativas.
 // APODERADO/ESTUDIANTE -> consultan el historial.
 // (Refleja "Microservicios: Hoja de Vida" del diagrama de casos
-// de uso: Registrar Anotación -> Anexar a Historial).
+// de uso: Registrar Anotacion -> Anexar a Historial).
 // =============================================================
 import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
@@ -29,16 +29,32 @@ export default function HojaVida() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
 
   useEffect(() => {
-    getEstudiantesVinculados(usuario).then((res) => {
-      setEstudiantes(res.data)
-      if (res.data.length) setSeleccionado(res.data[0].run)
-      setLoading(false)
-    })
+    setLoading(true)
+    const cargarEstudiantes = esDocente ? getEstudiantesPorDocente(usuario.run) : getEstudiantesVinculados(usuario)
+    cargarEstudiantes
+      .then((res) => {
+        setEstudiantes(res.data)
+        setSeleccionado(res.data.length ? res.data[0].run : '')
+      })
+      .catch(() => {
+        setEstudiantes([])
+        setSeleccionado('')
+        toast.error('No se pudieron cargar los estudiantes')
+      })
+      .finally(() => setLoading(false))
   }, [usuario, esDocente])
 
   const cargar = useCallback(() => {
-    if (!seleccionado) return
-    getHojaVida(seleccionado).then((res) => setAnotaciones(res.data))
+    if (!seleccionado) {
+      setAnotaciones([])
+      return
+    }
+    getHojaVida(seleccionado)
+      .then((res) => setAnotaciones(res.data))
+      .catch(() => {
+        setAnotaciones([])
+        toast.error('No se pudo cargar la hoja de vida')
+      })
   }, [seleccionado])
 
   useEffect(() => { cargar() }, [cargar])
@@ -51,12 +67,12 @@ export default function HojaVida() {
         detalle: data.detalle,
         autorRun: usuario.run,
       })
-      toast.success('Anotación registrada en la hoja de vida')
+      toast.success('Anotacion registrada en la hoja de vida')
       setModalAbierto(false)
       reset()
       cargar()
     } catch {
-      toast.error('No se pudo registrar la anotación')
+      toast.error('No se pudo registrar la anotacion')
     }
   }
 
@@ -72,7 +88,7 @@ export default function HojaVida() {
         subtitle={esDocente ? 'Registra anotaciones de comportamiento' : 'Historial de comportamiento escolar'}
         action={esDocente && (
           <button className="btn-primary" onClick={() => setModalAbierto(true)}>
-            <RiAddLine /> Registrar anotación
+            <RiAddLine /> Registrar anotacion
           </button>
         )}
       />
@@ -82,7 +98,7 @@ export default function HojaVida() {
           <label>{esDocente ? 'Estudiante:' : 'Pupilo/a:'}</label>
           <select value={seleccionado} onChange={(e) => setSeleccionado(e.target.value)}>
             {estudiantes.map((e) => (
-              <option key={e.run} value={e.run}>{e.nombre} — {e.curso}</option>
+              <option key={e.run} value={e.run}>{e.nombre} - {e.curso}</option>
             ))}
           </select>
         </div>
@@ -95,7 +111,7 @@ export default function HojaVida() {
 
       <div className="hv-timeline">
         {anotaciones.length === 0 ? (
-          <p className="text-suave empty-state">Sin anotaciones registradas aún.</p>
+          <p className="text-suave empty-state">Sin anotaciones registradas aun.</p>
         ) : anotaciones.map((a) => (
           <div key={a.id} className={`hv-item hv-item--${a.tipo}`}>
             <div className="hv-item__icon">
@@ -104,7 +120,7 @@ export default function HojaVida() {
             <div className="hv-item__body">
               <p className="hv-item__detalle">{a.detalle}</p>
               <p className="hv-item__meta text-suave">
-                {a.fecha} · Registrado por {a.autor?.nombre || 'Docente'}
+                {a.fecha} - Registrado por {a.autor?.nombre || 'Docente'}
               </p>
             </div>
           </div>
@@ -112,10 +128,10 @@ export default function HojaVida() {
       </div>
 
       {modalAbierto && (
-        <Modal title="Registrar anotación" onClose={() => setModalAbierto(false)}>
+        <Modal title="Registrar anotacion" onClose={() => setModalAbierto(false)}>
           <form onSubmit={handleSubmit(onRegistrar)}>
             <div className="form-group">
-              <label>Tipo de anotación</label>
+              <label>Tipo de anotacion</label>
               <select {...register('tipo', { required: true })}>
                 <option value="positiva">Positiva</option>
                 <option value="negativa">Negativa</option>
@@ -123,12 +139,12 @@ export default function HojaVida() {
             </div>
             <div className="form-group">
               <label>Detalle</label>
-              <textarea rows={4} placeholder="Describe la situación observada..."
+              <textarea rows={4} placeholder="Describe la situacion observada..."
                 {...register('detalle', { required: 'Este campo es obligatorio' })} />
               {errors.detalle && <span className="error-msg">{errors.detalle.message}</span>}
             </div>
             <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ width: '100%', justifyContent: 'center' }}>
-              {isSubmitting ? 'Guardando...' : 'Guardar anotación'}
+              {isSubmitting ? 'Guardando...' : 'Guardar anotacion'}
             </button>
           </form>
         </Modal>

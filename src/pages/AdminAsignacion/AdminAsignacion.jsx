@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { RiAddLine, RiDeleteBinLine, RiPencilLine } from 'react-icons/ri'
@@ -14,7 +14,7 @@ import PageHeader from '../../components/UI/PageHeader'
 import Modal from '../../components/Modal/Modal'
 import './AdminAsignacion.scss'
 
-export default function AdminAsignación() {
+export default function AdminAsignacion() {
   const [usuarios, setUsuarios] = useState([])
   const [cursos, setCursos] = useState([])
   const [matriculas, setMatriculas] = useState([])
@@ -43,7 +43,7 @@ export default function AdminAsignación() {
         setMatriculas(resMatriculas.data)
         setPeriodos(resPeriodos.data)
       })
-      .catch(() => toast.error('No se pudieron cargar las asignaciónes'))
+      .catch(() => toast.error('No se pudieron cargar las asignaciones'))
       .finally(() => setLoading(false))
   }
 
@@ -80,7 +80,7 @@ export default function AdminAsignación() {
     const curso = cursos.find((item) => item.id === Number(data.cursoId))
     const periodo = periodoActual()
     if (!curso) return toast.error('Debe seleccionar un curso')
-    if (!periodo) return toast.error('No hay periodos académicos disponibles')
+    if (!periodo) return toast.error('No hay periodos academicos disponibles')
 
     const existente = matriculaPorRun[estudianteRun]
     const payload = {
@@ -97,35 +97,35 @@ export default function AdminAsignación() {
       } else {
         await crearMatricula(payload)
       }
-      toast.success('Asignación actualizada')
+      toast.success('Asignacion actualizada')
       setModalAbierto(false)
       cargar()
     } catch (error) {
-      toast.error(error.response?.data?.error || error.response?.data?.mensaje || 'No se pudo guardar la asignación')
+      toast.error(error.response?.data?.error || error.response?.data?.mensaje || 'No se pudo guardar la asignacion')
     }
   }
 
   const onEliminar = async (estudiante) => {
     const matricula = matriculaPorRun[estudiante.run]
-    if (!matricula) return toast.info('El estudiante no tiene una asignación vigente')
+    if (!matricula) return toast.info('El estudiante no tiene una asignacion vigente')
     if (!confirm(`Quitar a ${estudiante.nombre} de su curso actual?`)) return
     try {
       await eliminarMatricula(matricula.id)
-      toast.success('Asignación eliminada')
+      toast.success('Asignacion eliminada')
       cargar()
     } catch (error) {
-      toast.error(error.response?.data?.error || error.response?.data?.mensaje || 'No se pudo eliminar la asignación')
+      toast.error(error.response?.data?.error || error.response?.data?.mensaje || 'No se pudo eliminar la asignacion')
     }
   }
 
-  if (loading) return <div className="loading-state">Cargando asignaciónes...</div>
+  if (loading) return <div className="loading-state">Cargando asignaciones...</div>
 
   return (
     <div className="page-content admin-asignacion">
       <PageHeader
-        title="Asignación de alumnos"
+        title="Asignacion de alumnos"
         subtitle="Relacion entre estudiantes y cursos/paralelos"
-        action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nueva asignación</button>}
+        action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nueva asignacion</button>}
       />
 
       <div className="data-table-wrap">
@@ -140,7 +140,7 @@ export default function AdminAsignación() {
                 <tr key={estudiante.run}>
                   <td>{estudiante.nombre}</td>
                   <td>{estudiante.run}</td>
-                  <td>{curso?.nombre || 'Sin asignación'}</td>
+                  <td>{curso?.nombre || 'Sin asignacion'}</td>
                   <td className="admin-acciones">
                     <button onClick={() => abrirEditar(estudiante)} aria-label="Editar"><RiPencilLine /></button>
                     <button className="danger" onClick={() => onEliminar(estudiante)} aria-label="Eliminar"><RiDeleteBinLine /></button>
@@ -172,7 +172,7 @@ export default function AdminAsignación() {
               {errors.cursoId && <span className="error-msg">{errors.cursoId.message}</span>}
             </div>
             <button type="submit" className="btn-primary admin-form__submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Guardando...' : 'Guardar asignación'}
+              {isSubmitting ? 'Guardando...' : 'Guardar asignacion'}
             </button>
           </form>
         </Modal>

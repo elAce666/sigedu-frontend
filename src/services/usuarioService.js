@@ -1,5 +1,5 @@
 // =============================================================
-// SERVICIO DE USUARIOS — services/usuarioService.js
+// SERVICIO DE USUARIOS - services/usuarioService.js
 // =============================================================
 // Conectado al backend real:
 //  - identidad (8080): /api/usuarios (listar, crear, actualizar, eliminar)
@@ -7,8 +7,8 @@
 //  - gestionacademica (8087): /api/asignatura
 //  - matricula (8088): /api/matricula (para derivar el curso de cada estudiante)
 // Las respuestas del backend se adaptan a la forma que ya consumen
-// las páginas (run, nombre, rol, email, curso, ...). El RUN se
-// maneja SIN dígito verificador (igual que el login); `runCompleto`
+// las paginas (run, nombre, rol, email, curso, ...). El RUN se
+// maneja SIN digito verificador (igual que el login); `runCompleto`
 // incluye el DV para mostrar y para las rutas PUT/DELETE del backend.
 // =============================================================
 import http from './httpClient'
@@ -40,19 +40,19 @@ const mapUsuario = (dto) => ({
 })
 
 const mapCurso = (dto) => ({
-  id: dto.id,
-  nombre: dto.nombre,
+  id: dto.id ?? dto.idCurso ?? dto.id_curso,
+  nombre: dto.nombre ?? dto.nombreCurso ?? dto.nombre_curso ?? 'Curso',
   descripcion: dto.descripcion,
-  nivelId: dto.nivelId,
-  periodoId: dto.periodoId,
-  salaId: dto.salaId,
-  activo: dto.activo,
-  nivel: dto.nombre,
-  sala: dto.salaId ? `Sala ${dto.salaId}` : '',
+  nivelId: dto.nivelId ?? dto.idNivel ?? dto.id_nivel_ref,
+  periodoId: dto.periodoId ?? dto.idPeriodo ?? dto.id_periodo_ref,
+  salaId: dto.salaId ?? dto.idSala ?? dto.id_sala_ref,
+  activo: dto.activo ?? true,
+  nivel: dto.nombre ?? dto.nombreCurso ?? dto.nombre_curso ?? 'Curso',
+  sala: (dto.salaId ?? dto.idSala ?? dto.id_sala_ref) ? `Sala ${dto.salaId ?? dto.idSala ?? dto.id_sala_ref}` : '',
 })
 
-// El backend de asignaturas referencia un nivel; las páginas esperan
-// cursoId, así que se deriva buscando el curso de ese nivel.
+// El backend de asignaturas referencia un nivel; las paginas esperan
+// cursoId, asi que se deriva buscando el curso de ese nivel.
 const mapAsignatura = (dto, cursos = []) => ({
   id: dto.id_asignatura,
   nombre: dto.nombre_asignatura,
@@ -61,8 +61,8 @@ const mapAsignatura = (dto, cursos = []) => ({
   cursoId: cursos.find((c) => c.nivelId === dto.id_nivel_ref)?.id ?? null,
 })
 
-// Mapa runEstudiante -> nombre de curso, derivado de las matrículas.
-// Si el rol del token no puede listar matrículas, se degrada a vacío.
+// Mapa runEstudiante -> nombre de curso, derivado de las matriculas.
+// Si el rol del token no puede listar matriculas, se degrada a vacio.
 const cargarCursosPorEstudiante = async (cursos) => {
   try {
     const res = await http.get('/api/matricula')
@@ -77,6 +77,25 @@ const cargarCursosPorEstudiante = async (cursos) => {
   }
 }
 
+const enriquecerEstudiantesConCurso = async (estudiantes) => {
+  if (!estudiantes.length) return estudiantes
+  try {
+    const cursos = (await getCursos()).data
+    const enriquecidos = await Promise.all(estudiantes.map(async (estudiante) => {
+      try {
+        const res = await http.get('/api/matricula/' + partirRun(estudiante.run).run)
+        const matricula = (res.data || []).find((item) => String(item.estado || '').toUpperCase() === 'ACTIVA') || (res.data || [])[0]
+        const curso = cursos.find((item) => Number(item.id) === Number(matricula?.id_curso_ref))
+        return { ...estudiante, curso: estudiante.curso || curso?.nombre || '' }
+      } catch {
+        return estudiante
+      }
+    }))
+    return enriquecidos
+  } catch {
+    return estudiantes
+  }
+}
 export const getCursos = async () => {
   const res = await http.get('/api/academica/cursos')
   return { data: (res.data || []).map(mapCurso) }
@@ -97,8 +116,8 @@ export const getAllUsuarios = async () => {
     res = await http.get('/api/usuarios')
   } catch (err) {
     // Roles sin permiso de listado (p. ej. APODERADO) reciben 403;
-    // se degrada a lista vacía para no romper las páginas que
-    // solo usan el directorio como información complementaria.
+    // se degrada a lista vacia para no romper las paginas que
+    // solo usan el directorio como informacion complementaria.
     if (err.response?.status === 403) return { data: [] }
     throw err
   }
@@ -107,7 +126,7 @@ export const getAllUsuarios = async () => {
     const cursos = (await getCursos()).data
     const cursoPorRun = await cargarCursosPorEstudiante(cursos)
     usuarios.forEach((u) => { u.curso = cursoPorRun[u.run] || null })
-  } catch { /* el curso es informativo; sin matrícula queda vacío */ }
+  } catch { /* el curso es informativo; sin matricula queda vacio */ }
   return { data: usuarios }
 }
 
@@ -125,31 +144,41 @@ export const getEstudiantesDeCurso = async (cursoNombre) => {
 
 export const getEstudiantesPorDocente = async (docenteRun) => {
   const runDocente = partirRun(docenteRun).run
-  const [usuariosRes, cursosRes, asignaturasRes, matriculasRes] = await Promise.all([
+  const [usuariosRes, cursosRes, asignaturasRes, matriculasRes] = await Promise.allSettled([
     getAllUsuarios(),
     getCursos(),
     getAsignaturas(),
     http.get('/api/matricula'),
   ])
 
-  const cursosPorId = new Map(cursosRes.data.map((curso) => [Number(curso.id), curso]))
+  const usuarios = usuariosRes.status === 'fulfilled' ? usuariosRes.value.data : []
+  const cursos = cursosRes.status === 'fulfilled' ? cursosRes.value.data : []
+  const asignaturas = asignaturasRes.status === 'fulfilled' ? asignaturasRes.value.data : []
+  const matriculas = matriculasRes.status === 'fulfilled' ? (matriculasRes.value.data || []) : []
+  const cursosPorId = new Map(cursos.map((curso) => [Number(curso.id), curso]))
+
   const cursosDocenteIds = new Set(
-    asignaturasRes.data
+    asignaturas
       .filter((asignatura) => partirRun(asignatura.docenteRun).run === runDocente)
       .map((asignatura) => Number(asignatura.cursoId))
       .filter(Boolean)
   )
 
-  const runsEstudiantes = new Set(
-    (matriculasRes.data || [])
-      .filter((matricula) => cursosDocenteIds.has(Number(matricula.id_curso_ref)))
-      .map((matricula) => partirRun(matricula.run_estudiante_ref).run)
-  )
+  let matriculasVisibles = matriculas.filter((matricula) => String(matricula.estado || '').toUpperCase() !== 'RETIRADA')
+  if (cursosDocenteIds.size > 0) {
+    const filtradas = matriculasVisibles.filter((matricula) => cursosDocenteIds.has(Number(matricula.id_curso_ref)))
+    if (filtradas.length > 0) matriculasVisibles = filtradas
+  }
 
-  const estudiantes = usuariosRes.data
-    .filter((usuario) => usuario.rol === 'ESTUDIANTE' && runsEstudiantes.has(partirRun(usuario.run).run))
+  const runsEstudiantes = new Set(matriculasVisibles.map((matricula) => partirRun(matricula.run_estudiante_ref).run))
+  const estudiantesBase = usuarios.filter((usuario) => usuario.rol === 'ESTUDIANTE')
+  const estudiantesFiltrados = runsEstudiantes.size
+    ? estudiantesBase.filter((usuario) => runsEstudiantes.has(partirRun(usuario.run).run))
+    : estudiantesBase
+
+  const estudiantes = estudiantesFiltrados
     .map((usuario) => {
-      const matricula = (matriculasRes.data || []).find((item) => partirRun(item.run_estudiante_ref).run === partirRun(usuario.run).run && cursosDocenteIds.has(Number(item.id_curso_ref)))
+      const matricula = matriculasVisibles.find((item) => partirRun(item.run_estudiante_ref).run === partirRun(usuario.run).run)
       const curso = cursosPorId.get(Number(matricula?.id_curso_ref))
       return { ...usuario, curso: usuario.curso || curso?.nombre || '' }
     })
@@ -157,13 +186,17 @@ export const getEstudiantesPorDocente = async (docenteRun) => {
 
   return { data: estudiantes }
 }
-
-// APODERADO: identidad no expone "listar mis pupilos", así que el
-// intento de listar usuarios fallará (403) y se degrada a lista vacía.
 export const getEstudiantesVinculados = async (usuario) => {
   if (usuario?.rol === 'ESTUDIANTE') {
-    return { data: [{ run: usuario.run, nombre: usuario.nombre || usuario.run, rol: 'ESTUDIANTE', curso: usuario.curso || '' }] }
+    const estudiantes = [{ run: usuario.run, nombre: usuario.nombre || usuario.run, rol: 'ESTUDIANTE', curso: usuario.curso || '' }]
+    return { data: await enriquecerEstudiantesConCurso(estudiantes) }
   }
+
+  if (usuario?.rol === 'APODERADO') {
+    const res = await http.get('/api/usuarios/mis-estudiantes')
+    return { data: await enriquecerEstudiantesConCurso((res.data || []).map(mapUsuario)) }
+  }
+
   try {
     const res = await getAllUsuarios()
     return { data: res.data.filter((u) => u.rol === 'ESTUDIANTE') }
@@ -178,7 +211,7 @@ export const createUsuario = async (data) => {
   const { run, dv } = partirRun(data.run)
   const partesNombre = String(data.nombre || '').trim().split(/\s+/)
   const pNombre = partesNombre[0] || ''
-  const pApellido = partesNombre.length > 1 ? partesNombre[partesNombre.length - 1] : '—'
+  const pApellido = partesNombre.length > 1 ? partesNombre[partesNombre.length - 1] : '-'
   const osNombre = partesNombre.length > 2 ? partesNombre.slice(1, -1).join(' ') : null
 
   const tipoUsuario = data.rol === 'ADMIN' ? 'DIRECTIVO' : data.rol

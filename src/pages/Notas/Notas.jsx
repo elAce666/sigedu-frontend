@@ -15,6 +15,8 @@ import PageHeader from '../../components/UI/PageHeader'
 import Modal from '../../components/Modal/Modal'
 import '../../styles/notas.scss'
 
+const soloRun = (valor) => String(valor || '').split('-')[0].replace(/\D/g, '')
+
 export default function Notas() {
   const { usuario, hasRole } = useAuth()
   const esDocente = hasRole('DOCENTE')
@@ -29,12 +31,20 @@ export default function Notas() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
 
   useEffect(() => {
-    Promise.all([esDocente ? getEstudiantesPorDocente(usuario.run) : getEstudiantesVinculados(usuario), getAsignaturas()])
-      .then(([resE, resA]) => {
-        const estudiantesData = resE.data
+    setLoading(true)
+    Promise.allSettled([
+      esDocente ? getEstudiantesPorDocente(usuario.run) : getEstudiantesVinculados(usuario),
+      getAsignaturas(),
+    ])
+      .then(([estudiantesRes, asignaturasRes]) => {
+        const estudiantesData = estudiantesRes.status === 'fulfilled' ? estudiantesRes.value.data : []
+        const asignaturasBase = asignaturasRes.status === 'fulfilled' ? asignaturasRes.value.data : []
         const asignaturasData = esDocente
-          ? resA.data.filter((a) => a.docenteRun === usuario.run)
-          : resA.data
+          ? asignaturasBase.filter((a) => soloRun(a.docenteRun) === soloRun(usuario.run))
+          : asignaturasBase
+
+        if (estudiantesRes.status === 'rejected') toast.error('No se pudieron cargar los estudiantes')
+        if (asignaturasRes.status === 'rejected') toast.warn('No se pudo cargar el catalogo de asignaturas')
 
         setEstudiantes(estudiantesData)
         setAsignaturas(asignaturasData)
@@ -51,6 +61,11 @@ export default function Notas() {
     }
     Promise.all([getNotasPorEstudiante(seleccionado), getPromediosPorAsignatura(seleccionado)])
       .then(([resN, resP]) => { setNotas(resN.data); setPromedios(resP.data) })
+      .catch(() => {
+        setNotas([])
+        setPromedios([])
+        toast.error('No se pudieron cargar las notas')
+      })
   }, [seleccionado])
 
   useEffect(() => { cargarNotas() }, [cargarNotas])
