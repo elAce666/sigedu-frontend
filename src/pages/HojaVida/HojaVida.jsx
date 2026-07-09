@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { RiAddLine, RiThumbUpLine, RiThumbDownLine } from 'react-icons/ri'
 import { useAuth } from '../../hooks/useAuth'
-import { getEstudiantesVinculados } from '../../services/usuarioService'
+import { getEstudiantesVinculados, getEstudiantesPorDocente } from '../../services/usuarioService'
 import { getHojaVida, registrarAnotacion } from '../../services/hojaVidaService'
 import PageHeader from '../../components/UI/PageHeader'
 import Modal from '../../components/Modal/Modal'
@@ -34,7 +34,7 @@ export default function HojaVida() {
       if (res.data.length) setSeleccionado(res.data[0].run)
       setLoading(false)
     })
-  }, [usuario])
+  }, [usuario, esDocente])
 
   const cargar = useCallback(() => {
     if (!seleccionado) return

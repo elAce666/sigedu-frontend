@@ -1,18 +1,25 @@
 // =============================================================
-// PÁGINA DE MENSAJERÍA — pages/Mensajeria/Mensajeria.jsx
+// PAGINA DE MENSAJERIA - pages/Mensajeria/Mensajeria.jsx
 // =============================================================
-// Refleja el "MICROSERVICIO Mensajería Integrada": cualquier
-// usuario envía mensajes individuales y lee los recibidos;
-// ADMIN/Directivo además puede enviar mensajes masivos.
+// Usa el microservicio real de mensajeria para listar, enviar,
+// responder, marcar como leido y eliminar mensajes.
 // =============================================================
 import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { RiInboxLine, RiSendPlaneLine, RiMegaphoneLine, RiMailOpenLine } from 'react-icons/ri'
+import {
+  RiInboxLine, RiSendPlaneLine, RiMegaphoneLine, RiMailOpenLine, RiReplyLine, RiDeleteBinLine,
+} from 'react-icons/ri'
 import { useAuth } from '../../hooks/useAuth'
 import { getAllUsuarios } from '../../services/usuarioService'
 import {
-  getBandejaEntrada, getBandejaEnviados, enviarMensaje, enviarMensajeMasivo, marcarLeido,
+  getBandejaEntrada,
+  getBandejaEnviados,
+  enviarMensaje,
+  enviarMensajeMasivo,
+  responderMensaje,
+  marcarLeido,
+  eliminarMensaje,
 } from '../../services/mensajeriaService'
 import PageHeader from '../../components/UI/PageHeader'
 import Modal from '../../components/Modal/Modal'
@@ -28,11 +35,14 @@ export default function Mensajeria() {
   const [loading, setLoading] = useState(true)
   const [modalNuevo, setModalNuevo] = useState(false)
   const [modalMasivo, setModalMasivo] = useState(false)
+  const [modalRespuesta, setModalRespuesta] = useState(null)
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
   const { register: regM, handleSubmit: handleM, reset: resetM, formState: { isSubmitting: subM } } = useForm()
+  const { register: regR, handleSubmit: handleR, reset: resetR, formState: { errors: errorsR, isSubmitting: subR } } = useForm()
 
   const cargar = useCallback(() => {
-    Promise.all([getBandejaEntrada(usuario.run), getBandejaEnviados(usuario.run), getAllUsuarios()])
+    setLoading(true)
+    Promise.all([getBandejaEntrada(), getBandejaEnviados(), getAllUsuarios()])
       .then(([resR, resE, resU]) => {
         setRecibidos(resR.data)
         setEnviados(resE.data)
@@ -50,6 +60,15 @@ export default function Mensajeria() {
     }
   }
 
+  const abrirRespuesta = (mensaje, event) => {
+    event.stopPropagation()
+    setModalRespuesta(mensaje)
+    resetR({
+      asunto: mensaje.asunto?.toLowerCase().startsWith('re:') ? mensaje.asunto : 'RE: ' + mensaje.asunto,
+      contenido: '',
+    })
+  }
+
   const onEnviar = async (data) => {
     try {
       await enviarMensaje({ emisorRun: usuario.run, receptorRun: data.receptorRun, asunto: data.asunto, contenido: data.contenido })
@@ -64,9 +83,17 @@ export default function Mensajeria() {
 
   const onEnviarMasivo = async (data) => {
     try {
-      const receptoresRun = usuarios.filter((u) => data.destino === 'todos' || u.rol === data.destino).map((u) => u.run)
+      const receptoresRun = usuarios
+        .filter((u) => data.destino === 'todos' || u.rol === data.destino)
+        .map((u) => u.run)
+
+      if (receptoresRun.length === 0) {
+        toast.warning('No hay destinatarios para ese filtro')
+        return
+      }
+
       const res = await enviarMensajeMasivo({ emisorRun: usuario.run, receptoresRun, asunto: data.asunto, contenido: data.contenido })
-      toast.success(`Comunicado enviado a ${res.data.enviados} destinatarios`)
+      toast.success('Comunicado enviado a ' + res.data.enviados + ' destinatarios')
       setModalMasivo(false)
       resetM()
       cargar()
@@ -75,7 +102,32 @@ export default function Mensajeria() {
     }
   }
 
-  if (loading) return <div className="loading-state">Cargando mensajería...</div>
+  const onResponder = async (data) => {
+    try {
+      await responderMensaje({ id: modalRespuesta.id, emisorRun: usuario.run, asunto: data.asunto, contenido: data.contenido })
+      toast.success('Respuesta enviada')
+      setModalRespuesta(null)
+      resetR()
+      cargar()
+    } catch {
+      toast.error('No se pudo responder el mensaje')
+    }
+  }
+
+  const onEliminar = async (mensaje, event) => {
+    event.stopPropagation()
+    if (!confirm('Confirma eliminar este mensaje')) return
+
+    try {
+      await eliminarMensaje(mensaje.id)
+      toast.success('Mensaje eliminado')
+      cargar()
+    } catch {
+      toast.error('No se pudo eliminar el mensaje')
+    }
+  }
+
+  if (loading) return <div className="loading-state">Cargando mensajeria...</div>
 
   const lista = tab === 'recibidos' ? recibidos : enviados
   const noLeidos = recibidos.filter((m) => !m.leido).length
@@ -83,8 +135,8 @@ export default function Mensajeria() {
   return (
     <div className="page-content">
       <PageHeader
-        title="Mensajería"
-        subtitle="Comunicación directa entre la comunidad SIGEDU"
+        title="Mensajeria"
+        subtitle="Comunicacion directa entre la comunidad SIGEDU"
         action={
           <div style={{ display: 'flex', gap: 8 }}>
             {hasRole('ADMIN') && (
@@ -114,7 +166,9 @@ export default function Mensajeria() {
         ) : lista.map((m) => (
           <div
             key={m.id}
-            className={`msg-item ${tab === 'recibidos' && !m.leido ? 'msg-item--no-leido' : ''}`}
+            className={
+              'msg-item ' + (tab === 'recibidos' && !m.leido ? 'msg-item--no-leido' : '')
+            }
             onClick={() => tab === 'recibidos' && abrirMensaje(m)}
           >
             <div className="msg-item__icon"><RiMailOpenLine /></div>
@@ -128,6 +182,18 @@ export default function Mensajeria() {
               </div>
               <p className="msg-item__asunto">{m.asunto}</p>
               <p className="msg-item__contenido text-suave">{m.contenido}</p>
+            </div>
+            <div className="msg-item__actions">
+              {tab === 'recibidos' && m.receptorRun && m.emisorRun && (
+                <button type="button" title="Responder" aria-label="Responder" onClick={(event) => abrirRespuesta(m, event)}>
+                  <RiReplyLine />
+                </button>
+              )}
+              {(tab === 'enviados' || m.receptorRun) && (
+                <button type="button" title="Eliminar" aria-label="Eliminar" className="danger" onClick={(event) => onEliminar(m, event)}>
+                  <RiDeleteBinLine />
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -183,6 +249,30 @@ export default function Mensajeria() {
             </div>
             <button type="submit" className="btn-gold" disabled={subM} style={{ width: '100%', justifyContent: 'center' }}>
               {subM ? 'Enviando...' : 'Enviar comunicado'}
+            </button>
+          </form>
+        </Modal>
+      )}
+
+      {modalRespuesta && (
+        <Modal title="Responder mensaje" onClose={() => setModalRespuesta(null)}>
+          <form onSubmit={handleR(onResponder)}>
+            <div className="form-group">
+              <label>Para</label>
+              <input type="text" value={modalRespuesta.emisor?.nombre || modalRespuesta.emisorRun} disabled />
+            </div>
+            <div className="form-group">
+              <label>Asunto</label>
+              <input type="text" {...regR('asunto', { required: 'El asunto es obligatorio' })} />
+              {errorsR.asunto && <span className="error-msg">{errorsR.asunto.message}</span>}
+            </div>
+            <div className="form-group">
+              <label>Mensaje</label>
+              <textarea rows={4} {...regR('contenido', { required: 'Escribe una respuesta' })} />
+              {errorsR.contenido && <span className="error-msg">{errorsR.contenido.message}</span>}
+            </div>
+            <button type="submit" className="btn-primary" disabled={subR} style={{ width: '100%', justifyContent: 'center' }}>
+              {subR ? 'Enviando...' : 'Enviar respuesta'}
             </button>
           </form>
         </Modal>

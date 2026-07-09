@@ -1,12 +1,8 @@
 // =============================================================
-// BARRA DE NAVEGACIÓN — components/Navbar/Navbar.jsx
+// BARRA DE NAVEGACION - components/Navbar/Navbar.jsx
 // =============================================================
-// Pública: Inicio | Nosotros (ancla informativa del colegio).
-// Sin sesión: botón Ingresar.
-// Con sesión, según rol (ESTUDIANTE/APODERADO/DOCENTE comparten
-// los módulos académicos; ADMIN ve el Panel de Gestión):
-//   Notas | Asistencia | Hoja de Vida | Mensajería | Mi perfil
-//   ADMIN: Panel de Gestión
+// Publica: Inicio | Nosotros. Sin sesion: boton Ingresar.
+// Con sesion, segun rol, muestra los modulos disponibles.
 // =============================================================
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
@@ -73,7 +69,6 @@ export default function Navbar() {
                     <NavLink to="/admin/asignacion" className="navbar__user-link" onClick={closeMenu}>Asignación</NavLink>
                     <NavLink to="/admin/matriculas" className="navbar__user-link" onClick={closeMenu}>Matrículas</NavLink>
                     <NavLink to="/admin/reuniones" className="navbar__user-link" onClick={closeMenu}>Reuniones</NavLink>
-                    <NavLink to="/admin/pagos" className="navbar__user-link" onClick={closeMenu}>Pagos</NavLink>
                     <NavLink to="/reportes" className="navbar__user-link" onClick={closeMenu}>Reportes</NavLink>
                     <NavLink to="/mensajeria" className="navbar__user-link" onClick={closeMenu}>Mensajería</NavLink>
                   </>

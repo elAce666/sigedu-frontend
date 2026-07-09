@@ -1,5 +1,5 @@
-// =============================================================
-// APP — src/App.jsx
+﻿// =============================================================
+// APP - src/App.jsx
 // =============================================================
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
@@ -21,7 +21,6 @@ import Mensajeria from './pages/Mensajeria/Mensajeria'
 import Admin from './pages/Admin/Admin'
 import AdminConfiguracion from './pages/AdminConfiguracion/AdminConfiguracion'
 import AdminGrados from './pages/AdminGrados/AdminGrados'
-import AdminPagos from './pages/AdminPagos/AdminPagos'
 import AdminAsignacion from './pages/AdminAsignacion/AdminAsignacion'
 import AdminMatriculas from './pages/AdminMatriculas/AdminMatriculas'
 import Reuniones from './pages/Reuniones/Reuniones'
@@ -51,12 +50,12 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Públicas */}
+          {/* Publicas */}
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/nosotros" element={<Layout><Nosotros /></Layout>} />
           <Route path="/login" element={<Login />} />
 
-          {/* Módulos académicos: Estudiante, Apoderado, Docente */}
+          {/* Modulos academicos: Estudiante, Apoderado, Docente */}
           <Route path="/notas" element={
             <PrivateRoute roles={ROLES_ACADEMICOS}>
               <Layout withFooter={false}><div className="page-wrapper"><Notas /></div></Layout>
@@ -73,7 +72,7 @@ export default function App() {
             </PrivateRoute>
           } />
 
-          {/* Mensajería: todos los roles autenticados */}
+          {/* Mensajeria: todos los roles autenticados */}
           <Route path="/mensajeria" element={
             <PrivateRoute roles={ROLES_TODOS}>
               <Layout withFooter={false}><div className="page-wrapper"><Mensajeria /></div></Layout>
@@ -87,7 +86,7 @@ export default function App() {
             </PrivateRoute>
           } />
 
-          {/* Panel de gestión: solo ADMIN/Directivo */}
+          {/* Panel de gestion: solo ADMIN/Directivo */}
           <Route path="/admin" element={
             <PrivateRoute roles={['ADMIN']}>
               <Layout withFooter={false}><div className="page-wrapper"><Admin /></div></Layout>
@@ -101,11 +100,6 @@ export default function App() {
           <Route path="/admin/grados" element={
             <PrivateRoute roles={['ADMIN']}>
               <Layout withFooter={false}><div className="page-wrapper"><AdminGrados /></div></Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/admin/pagos" element={
-            <PrivateRoute roles={['ADMIN']}>
-              <Layout withFooter={false}><div className="page-wrapper"><AdminPagos /></div></Layout>
             </PrivateRoute>
           } />
           <Route path="/admin/asignacion" element={
@@ -138,3 +132,4 @@ export default function App() {
     </AuthProvider>
   )
 }
+

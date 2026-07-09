@@ -122,6 +122,42 @@ export const getEstudiantesDeCurso = async (cursoNombre) => {
   return { data: res.data.filter((u) => u.rol === 'ESTUDIANTE' && (!cursoNombre || u.curso === cursoNombre)) }
 }
 
+
+export const getEstudiantesPorDocente = async (docenteRun) => {
+  const runDocente = partirRun(docenteRun).run
+  const [usuariosRes, cursosRes, asignaturasRes, matriculasRes] = await Promise.all([
+    getAllUsuarios(),
+    getCursos(),
+    getAsignaturas(),
+    http.get('/api/matricula'),
+  ])
+
+  const cursosPorId = new Map(cursosRes.data.map((curso) => [Number(curso.id), curso]))
+  const cursosDocenteIds = new Set(
+    asignaturasRes.data
+      .filter((asignatura) => partirRun(asignatura.docenteRun).run === runDocente)
+      .map((asignatura) => Number(asignatura.cursoId))
+      .filter(Boolean)
+  )
+
+  const runsEstudiantes = new Set(
+    (matriculasRes.data || [])
+      .filter((matricula) => cursosDocenteIds.has(Number(matricula.id_curso_ref)))
+      .map((matricula) => partirRun(matricula.run_estudiante_ref).run)
+  )
+
+  const estudiantes = usuariosRes.data
+    .filter((usuario) => usuario.rol === 'ESTUDIANTE' && runsEstudiantes.has(partirRun(usuario.run).run))
+    .map((usuario) => {
+      const matricula = (matriculasRes.data || []).find((item) => partirRun(item.run_estudiante_ref).run === partirRun(usuario.run).run && cursosDocenteIds.has(Number(item.id_curso_ref)))
+      const curso = cursosPorId.get(Number(matricula?.id_curso_ref))
+      return { ...usuario, curso: usuario.curso || curso?.nombre || '' }
+    })
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+
+  return { data: estudiantes }
+}
+
 // APODERADO: identidad no expone "listar mis pupilos", así que el
 // intento de listar usuarios fallará (403) y se degrada a lista vacía.
 export const getEstudiantesVinculados = async (usuario) => {
@@ -165,7 +201,7 @@ export const createUsuario = async (data) => {
     correoUsuario: data.email,
     telefonoUsuario: data.telefono || null,
     genero: data.genero || 'M',
-    contrasena: data.password || 'sigedu123',
+    contrasena: String(data.password || '').trim(),
     tipoUsuario,
     campoEspecifico: campoPorTipo[tipoUsuario] || 'General',
     runApoderado: tipoUsuario === 'ESTUDIANTE' ? partirRun(data.runApoderado).run : null,
