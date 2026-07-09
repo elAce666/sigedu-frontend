@@ -1,5 +1,5 @@
 // =============================================================
-// PRIVATE ROUTE — components/PrivateRoute/PrivateRoute.jsx
+// PRIVATE ROUTE - components/PrivateRoute/PrivateRoute.jsx
 // =============================================================
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'

@@ -1,5 +1,5 @@
 // =============================================================
-// PANEL DE GESTIÓN (ADMIN/DIRECTIVO) — pages/Admin/Admin.jsx
+// PANEL DE GESTION (ADMIN/DIRECTIVO) - pages/Admin/Admin.jsx
 // =============================================================
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -26,8 +26,21 @@ export default function Admin() {
   const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm()
 
   const cargar = () => {
-    Promise.all([getAllUsuarios(), getCursos()])
-      .then(([resU, resC]) => { setUsuarios(resU.data); setCursos(resC.data) })
+    setLoading(true)
+    Promise.allSettled([getAllUsuarios(), getCursos()])
+      .then(([usuariosRes, cursosRes]) => {
+        if (usuariosRes.status === 'fulfilled') setUsuarios(usuariosRes.value.data)
+        else {
+          setUsuarios([])
+          toast.error('No se pudieron cargar los usuarios')
+        }
+
+        if (cursosRes.status === 'fulfilled') setCursos(cursosRes.value.data)
+        else {
+          setCursos([])
+          toast.error('No se pudieron cargar los cursos')
+        }
+      })
       .finally(() => setLoading(false))
   }
 
@@ -35,24 +48,31 @@ export default function Admin() {
 
   const abrirNuevo = () => {
     setEditando(null)
-    reset({ rol: 'ESTUDIANTE' })
+    reset({ rol: 'ESTUDIANTE', genero: 'F', password: '' })
     setModalAbierto(true)
   }
 
   const abrirEditar = (u) => {
     setEditando(u)
     Object.entries(u).forEach(([k, v]) => setValue(k, v))
+    setValue('password', '')
     setModalAbierto(true)
   }
 
   const onGuardar = async (data) => {
     try {
+      const payload = {
+        ...data,
+        password: data.password?.trim() || '',
+      }
+
       if (editando) {
-        await updateUsuario(editando.runCompleto || editando.run, data)
+        if (!payload.password) delete payload.password
+        await updateUsuario(editando.runCompleto || editando.run, payload)
         toast.success('Usuario actualizado')
       } else {
-        await createUsuario({ ...data, password: 'sigedu123' })
-        toast.success('Usuario creado (contraseña inicial: sigedu123)')
+        await createUsuario(payload)
+        toast.success('Usuario creado')
       }
       setModalAbierto(false)
       cargar()
@@ -62,13 +82,13 @@ export default function Admin() {
   }
 
   const onEliminar = async (run) => {
-    if (!confirm('¿Eliminar este usuario del sistema?')) return
+    if (!confirm('Confirma eliminar este usuario del sistema')) return
     await deleteUsuario(run)
     toast.success('Usuario eliminado')
     cargar()
   }
 
-  if (loading) return <div className="loading-state">Cargando panel de gestión...</div>
+  if (loading) return <div className="loading-state">Cargando panel de gestion...</div>
 
   const totalEstudiantes = usuarios.filter((u) => u.rol === 'ESTUDIANTE').length
   const totalDocentes = usuarios.filter((u) => u.rol === 'DOCENTE').length
@@ -79,8 +99,8 @@ export default function Admin() {
   return (
     <div className="page-content">
       <PageHeader
-        title="Panel de Gestión"
-        subtitle="Administración de usuarios, cursos y matrículas — SIGEDU"
+        title="Panel de Gestion"
+        subtitle="Administracion de usuarios, cursos y matriculas - SIGEDU"
         action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nuevo usuario</button>}
       />
 
@@ -111,7 +131,7 @@ export default function Admin() {
                 <td>{u.runCompleto || u.run}</td>
                 <td><RoleBadge rol={u.rol} /></td>
                 <td>{u.email}</td>
-                <td>{u.curso || u.cursoJefatura || '—'}</td>
+                <td>{u.curso || u.cursoJefatura || '-'}</td>
                 <td className="admin-acciones">
                   <button onClick={() => abrirEditar(u)} aria-label="Editar"><RiPencilLine /></button>
                   <button onClick={() => onEliminar(u.runCompleto || u.run)} className="danger" aria-label="Eliminar"><RiDeleteBinLine /></button>
@@ -135,9 +155,22 @@ export default function Admin() {
               <input type="text" placeholder="11111111-1" disabled={!!editando} {...register('run', { required: 'Campo obligatorio' })} />
             </div>
             <div className="form-group">
-              <label>Correo electrónico</label>
+              <label>Correo electronico</label>
               <input type="email" {...register('email', { required: 'Campo obligatorio' })} />
               {errors.email && <span className="error-msg">{errors.email.message}</span>}
+            </div>
+            <div className="form-group">
+              <label>{editando ? 'Nueva contrasena (opcional)' : 'Contrasena inicial'}</label>
+              <input
+                type="password"
+                autoComplete="new-password"
+                placeholder={editando ? 'Dejar en blanco para mantenerla' : 'Minimo 8 caracteres'}
+                {...register('password', {
+                  required: editando ? false : 'Campo obligatorio',
+                  minLength: { value: 8, message: 'Minimo 8 caracteres' },
+                })}
+              />
+              {errors.password && <span className="error-msg">{errors.password.message}</span>}
             </div>
             <div className="form-group">
               <label>Rol</label>
@@ -149,7 +182,7 @@ export default function Admin() {
               </select>
             </div>
             <div className="form-group">
-              <label>Género</label>
+              <label>Genero</label>
               <select {...register('genero', { required: true })}>
                 <option value="F">Femenino</option>
                 <option value="M">Masculino</option>

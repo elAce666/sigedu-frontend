@@ -52,7 +52,7 @@ export default function AdminGrados() {
   }
 
   const onEliminar = async (id) => {
-    if (!confirm('¿Eliminar este nivel?')) return
+    if (!confirm('Eliminar este nivel?')) return
     try {
       await eliminarNivel(id)
       toast.success('Nivel eliminado')
@@ -68,7 +68,7 @@ export default function AdminGrados() {
     <div className="page-content admin-grados">
       <PageHeader
         title="Grados y niveles"
-        subtitle="Administración de niveles educativos desde 1° Básico a 4° Medio"
+        subtitle="Administracion de niveles educativos desde 1o Basico a 4o Medio"
         action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nuevo nivel</button>}
       />
 
@@ -97,7 +97,7 @@ export default function AdminGrados() {
           <form className="admin-form" onSubmit={handleSubmit(onGuardar)}>
             <div className="form-group">
               <label>Nombre del nivel</label>
-              <input type="text" placeholder="1° Básico" {...register('nombre', { required: 'Campo obligatorio' })} />
+              <input type="text" placeholder="1o Basico" {...register('nombre', { required: 'Campo obligatorio' })} />
               {errors.nombre && <span className="error-msg">{errors.nombre.message}</span>}
             </div>
             <div className="form-group">

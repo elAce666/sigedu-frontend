@@ -15,29 +15,29 @@ const NOTICIAS = [
   {
     categoria: 'Logro',
     fecha: '30 junio 2026',
-    titulo: 'El colegio obtiene el primer lugar en Olimpiada Regional de Matemática',
-    texto: 'Un grupo de estudiantes destacó en la competencia regional con excelentes resultados y reconocimiento de la comunidad educativa.',
+    titulo: 'El colegio obtiene el primer lugar en Olimpiada Regional de Matematica',
+    texto: 'Un grupo de estudiantes destaco en la competencia regional con excelentes resultados y reconocimiento de la comunidad educativa.',
     tono: 'logro',
   },
   {
     categoria: 'Comunicado',
     fecha: '29 junio 2026',
-    titulo: 'Inicio del proceso de matrícula 2027',
-    texto: 'La dirección informa las fechas, requisitos y horarios para acompañar a las familias en el proceso de matrícula.',
+    titulo: 'Inicio del proceso de matricula 2027',
+    texto: 'La direccion informa las fechas, requisitos y horarios para acompanar a las familias en el proceso de matricula.',
     tono: 'comunicado',
   },
   {
     categoria: 'Evento',
     fecha: '27 junio 2026',
     titulo: 'Aniversario del colegio: actividades para toda la familia',
-    texto: 'Durante la semana aniversario se preparan actos, presentaciones artísticas y espacios de encuentro para la comunidad escolar.',
+    texto: 'Durante la semana aniversario se preparan actos, presentaciones artisticas y espacios de encuentro para la comunidad escolar.',
     tono: 'evento',
   },
   {
-    categoria: 'Académico',
+    categoria: 'Academico',
     fecha: '25 junio 2026',
-    titulo: 'Estudiantes de 8° básico destacan en feria científica',
-    texto: 'Proyectos de ciencias, creatividad y trabajo colaborativo fueron parte de la muestra realizada por los cursos de enseñanza básica.',
+    titulo: 'Estudiantes de 8o basico destacan en feria cientifica',
+    texto: 'Proyectos de ciencias, creatividad y trabajo colaborativo fueron parte de la muestra realizada por los cursos de ensenanza basica.',
     tono: 'academico',
   },
 ]
@@ -45,17 +45,17 @@ const NOTICIAS = [
 const AGENDA = [
   {
     fecha: '02 JUL',
-    dia: 'Miércoles',
-    titulo: 'Reunión de apoderados 7° básico',
-    detalle: '18:30 hrs · Sala multipropósito',
+    dia: 'Miercoles',
+    titulo: 'Reunion de apoderados 7o basico',
+    detalle: '18:30 hrs - Sala multiproposito',
     tipo: 'administrativo',
     icono: <RiCalendarCheckLine />,
   },
   {
     fecha: '07 JUL',
     dia: 'Lunes',
-    titulo: 'Acto cívico y saludo de aniversario',
-    detalle: '08:30 hrs · Patio central',
+    titulo: 'Acto civico y saludo de aniversario',
+    detalle: '08:30 hrs - Patio central',
     tipo: 'social',
     icono: <RiTeamLine />,
   },
@@ -63,14 +63,14 @@ const AGENDA = [
     fecha: '11 JUL',
     dia: 'Viernes',
     titulo: 'Cierre del primer semestre',
-    detalle: 'Finaliza el período académico regular',
+    detalle: 'Finaliza el periodo academico regular',
     tipo: 'academico',
     icono: <RiBookOpenLine />,
   },
   {
     fecha: '14 JUL',
     dia: 'Lunes',
-    titulo: 'Entrega de notas y cierre de período',
+    titulo: 'Entrega de notas y cierre de periodo',
     detalle: 'Disponibles en el portal para apoderados y estudiantes',
     tipo: 'administrativo',
     icono: <RiFileUserLine />,
@@ -79,16 +79,16 @@ const AGENDA = [
     fecha: '21 JUL',
     dia: 'Lunes',
     titulo: 'Inicio vacaciones de invierno',
-    detalle: 'Suspensión de clases hasta nuevo aviso del calendario escolar',
+    detalle: 'Suspension de clases hasta nuevo aviso del calendario escolar',
     tipo: 'social',
     icono: <RiCalendarEventLine />,
   },
 ]
 
 const MODULOS = [
-  { icon: <RiBookOpenLine />, titulo: 'Notas', texto: 'Consulta de calificaciones y seguimiento académico.' },
+  { icon: <RiBookOpenLine />, titulo: 'Notas', texto: 'Consulta de calificaciones y seguimiento academico.' },
   { icon: <RiCalendarCheckLine />, titulo: 'Asistencia', texto: 'Registro diario y control de inasistencias.' },
-  { icon: <RiChat3Line />, titulo: 'Mensajería', texto: 'Comunicación directa entre el colegio y las familias.' },
+  { icon: <RiChat3Line />, titulo: 'Mensajeria', texto: 'Comunicacion directa entre el colegio y las familias.' },
   { icon: <RiFileUserLine />, titulo: 'Hoja de vida', texto: 'Anotaciones y observaciones del proceso escolar.' },
 ]
 
@@ -100,7 +100,7 @@ export default function Home() {
       <section className="home__hero">
         <div className="home__container home__hero-grid">
           <div className="home__hero-content">
-            <span className="home__hero-tag">Colegio Bernardo O'Higgins · Coquimbo</span>
+            <span className="home__hero-tag">Colegio Bernardo O'Higgins - Coquimbo</span>
             <div className="home__hero-brand">
               <div className="home__hero-logo" aria-hidden="true">
                 <RiSchoolLine />
@@ -112,7 +112,7 @@ export default function Home() {
             </div>
             <p className="home__hero-desc">
               Noticias, comunicados y actividades de nuestra comunidad escolar en un solo lugar,
-              con acceso rápido para estudiantes, apoderados, docentes y equipo directivo.
+              con acceso rapido para estudiantes, apoderados, docentes y equipo directivo.
             </p>
             <div className="home__hero-actions">
               <Link to="/login" className="home__btn home__btn--primary">Ingresar al portal</Link>
@@ -121,10 +121,10 @@ export default function Home() {
           </div>
 
           <aside className="home__hero-card" aria-label="Aviso destacado">
-            <span className="home__hero-card-label">Próximo hito</span>
+            <span className="home__hero-card-label">Proximo hito</span>
             <h2>Reuniones de apoderados en julio</h2>
             <p>
-              Revisar fechas y horarios publicados por cada curso para organizar la participación
+              Revisar fechas y horarios publicados por cada curso para organizar la participacion
               de las familias.
             </p>
             <div className="home__hero-card-footer">
@@ -140,10 +140,10 @@ export default function Home() {
           <div className="home__section-head">
             <div>
               <span className="home__section-kicker">Comunicados</span>
-              <h2>Últimas noticias</h2>
+              <h2>Ultimas noticias</h2>
             </div>
             <p>
-              Un resumen breve de lo que está ocurriendo en el colegio, con información útil para
+              Un resumen breve de lo que esta ocurriendo en el colegio, con informacion util para
               la comunidad escolar.
             </p>
           </div>
@@ -176,7 +176,7 @@ export default function Home() {
               <h2>Calendario de actividades</h2>
             </div>
             <p>
-              Próximas fechas relevantes del semestre para orientar la participación de estudiantes
+              Proximas fechas relevantes del semestre para orientar la participacion de estudiantes
               y familias.
             </p>
           </div>
@@ -206,9 +206,9 @@ export default function Home() {
           <div className="home__section-head home__section-head--compact">
             <div>
               <span className="home__section-kicker">Portal SIGEDU</span>
-              <h2>Módulos del sistema</h2>
+              <h2>Modulos del sistema</h2>
             </div>
-            <p>Accesos internos para revisar información académica y de convivencia escolar.</p>
+            <p>Accesos internos para revisar informacion academica y de convivencia escolar.</p>
           </div>
 
           <div className="home__modulos-grid">

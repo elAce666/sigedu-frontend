@@ -1,7 +1,7 @@
 // =============================================================
-// SERVICIO DE PAGOS — services/pagoService.js
+// SERVICIO DE PAGOS - services/pagoService.js
 // =============================================================
-// NOTA: sigue en mock — no existe un microservicio de pagos en el
+// NOTA: sigue en mock - no existe un microservicio de pagos en el
 // backend (los 10 MS actuales no cubren este dominio).
 import { getDB, setDB, nextId } from '../mock/db'
 import { resolveData, rejectError } from './apiClient'

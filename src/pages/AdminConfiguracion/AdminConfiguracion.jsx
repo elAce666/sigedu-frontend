@@ -14,7 +14,7 @@ import './AdminConfiguracion.scss'
 
 const LABELS = {
   nombreColegio: 'Nombre colegio',
-  anoAcademicoActivo: 'Año académico activo',
+  anoAcademicoActivo: 'Anio academico activo',
   periodoEscolar: 'Periodo escolar',
 }
 
@@ -49,43 +49,43 @@ export default function AdminConfiguracion() {
     try {
       if (editando) {
         await actualizarConfiguracion(editando.id, data)
-        toast.success('Configuración actualizada')
+        toast.success('Configuracion actualizada')
       } else {
         await crearConfiguracion(data)
-        toast.success('Configuración creada')
+        toast.success('Configuracion creada')
       }
       setModalAbierto(false)
       cargar()
     } catch (error) {
-      toast.error(error.response?.data?.error || 'No se pudo guardar la configuración')
+      toast.error(error.response?.data?.error || 'No se pudo guardar la configuracion')
     }
   }
 
   const onEliminar = async (id) => {
-    if (!confirm('¿Eliminar esta configuración?')) return
+    if (!confirm('Eliminar esta configuracion?')) return
     try {
       await eliminarConfiguracion(id)
-      toast.success('Configuración eliminada')
+      toast.success('Configuracion eliminada')
       cargar()
     } catch (error) {
-      toast.error(error.response?.data?.error || 'No se pudo eliminar la configuración')
+      toast.error(error.response?.data?.error || 'No se pudo eliminar la configuracion')
     }
   }
 
-  if (loading) return <div className="loading-state">Cargando configuración...</div>
+  if (loading) return <div className="loading-state">Cargando configuracion...</div>
 
   return (
     <div className="page-content admin-configuracion">
       <PageHeader
-        title="Configuración general"
-        subtitle="Parámetros institucionales básicos del sistema"
-        action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nueva configuración</button>}
+        title="Configuracion general"
+        subtitle="Parametros institucionales basicos del sistema"
+        action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nueva configuracion</button>}
       />
 
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr><th>Clave</th><th>Valor</th><th>Descripción</th><th></th></tr>
+            <tr><th>Clave</th><th>Valor</th><th>Descripcion</th><th></th></tr>
           </thead>
           <tbody>
             {configuraciones.map((item) => (
@@ -104,7 +104,7 @@ export default function AdminConfiguracion() {
       </div>
 
       {modalAbierto && (
-        <Modal title={editando ? 'Editar configuración' : 'Nueva configuración'} onClose={() => setModalAbierto(false)}>
+        <Modal title={editando ? 'Editar configuracion' : 'Nueva configuracion'} onClose={() => setModalAbierto(false)}>
           <form className="admin-form" onSubmit={handleSubmit(onGuardar)}>
             <div className="form-group">
               <label>Clave</label>
@@ -117,7 +117,7 @@ export default function AdminConfiguracion() {
               {errors.valor && <span className="error-msg">{errors.valor.message}</span>}
             </div>
             <div className="form-group">
-              <label>Descripción</label>
+              <label>Descripcion</label>
               <textarea rows="3" {...register('descripcion', { required: 'Campo obligatorio' })} />
               {errors.descripcion && <span className="error-msg">{errors.descripcion.message}</span>}
             </div>

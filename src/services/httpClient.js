@@ -1,17 +1,17 @@
 // =============================================================
-// CLIENTE HTTP REAL — services/httpClient.js
+// CLIENTE HTTP REAL - services/httpClient.js
 // =============================================================
 // Cliente basado en fetch que conserva el contrato que ya usan
-// las páginas: toda función devuelve una Promise que resuelve
+// las paginas: toda funcion devuelve una Promise que resuelve
 // { data } y rechaza con { response: { status, data } } (la
-// misma forma de axios que imita apiClient.js). Así los
+// misma forma de axios que imita apiClient.js). Asi los
 // services pueden migrar del mock al backend real sin que las
-// páginas cambien.
+// paginas cambien.
 //
-// - Adjunta automáticamente el JWT (sigedu_token) como Bearer.
+// - Adjunta automaticamente el JWT (sigedu_token) como Bearer.
 // - Las rutas son relativas (/api/...): en desarrollo el proxy
-//   de Vite (vite.config.js) las reenvía al microservicio que
-//   corresponda; en producción se puede fijar VITE_API_BASE_URL.
+//   de Vite (vite.config.js) las reenvia al microservicio que
+//   corresponda; en produccion se puede fijar VITE_API_BASE_URL.
 // =============================================================
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
@@ -34,7 +34,7 @@ async function request(path, { method = 'GET', body, headers = {} } = {}) {
       ...(body !== undefined && { body: JSON.stringify(body) }),
     })
   } catch (networkError) {
-    // Sin conexión / backend caído: se marca para que el service
+    // Sin conexion / backend caido: se marca para que el service
     // que llama pueda decidir si usa un fallback (p. ej. el mock).
     const err = new Error('No se pudo conectar con el servidor')
     err.isNetworkError = true

@@ -2,17 +2,25 @@ import { useEffect, useMemo, useState } from 'react'
 import { getAllUsuarios, getCursos } from '../../services/usuarioService'
 import { getNotasPorEstudiante } from '../../services/notaService'
 import { getAsistenciaPorEstudiante } from '../../services/asistenciaService'
-import { getPagos } from '../../services/pagoService'
 import PageHeader from '../../components/UI/PageHeader'
 import StatCard from '../../components/UI/StatCard'
 import './Reportes.scss'
 
-const money = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Number(value || 0))
+const promedio = (items) => {
+  if (!items.length) return '0.0'
+  const total = items.reduce((sum, item) => sum + Number(item.valor || 0), 0)
+  return (total / items.length).toFixed(1)
+}
+
+const porcentajeAsistencia = (items) => {
+  if (!items.length) return '0%'
+  const presentes = items.filter((item) => ['presente', 'atrasado'].includes(String(item.estado || '').toLowerCase())).length
+  return Math.round((presentes / items.length) * 100) + '%'
+}
 
 export default function Reportes() {
   const [cursos, setCursos] = useState([])
   const [usuarios, setUsuarios] = useState([])
-  const [pagos, setPagos] = useState([])
   const [notas, setNotas] = useState([])
   const [asistencias, setAsistencias] = useState([])
   const [cursoId, setCursoId] = useState('')
@@ -20,21 +28,39 @@ export default function Reportes() {
   const [cargandoReportes, setCargandoReportes] = useState(false)
 
   useEffect(() => {
-    Promise.all([getCursos(), getAllUsuarios(), getPagos()])
-      .then(([resCursos, resUsuarios, resPagos]) => {
+    Promise.all([getCursos(), getAllUsuarios()])
+      .then(([resCursos, resUsuarios]) => {
         setCursos(resCursos.data)
         setUsuarios(resUsuarios.data)
-        setPagos(resPagos.data)
-        setCursoId(String(resCursos.data[0]?.id || ''))
       })
       .finally(() => setLoading(false))
   }, [])
 
-  useEffect(() => {
-    const curso = cursos.find((item) => String(item.id) === String(cursoId))
-    if (!curso) return
+  const cursosConEstudiantes = useMemo(() => {
+    return cursos
+      .map((curso) => {
+        const estudiantes = usuarios.filter((usuario) => usuario.rol === 'ESTUDIANTE' && usuario.curso === curso.nombre)
+        return { ...curso, estudiantes }
+      })
+      .filter((curso) => curso.estudiantes.length > 0)
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+  }, [cursos, usuarios])
 
-    const estudiantesCurso = usuarios.filter((usuario) => usuario.rol === 'ESTUDIANTE' && usuario.curso === curso.nombre)
+  useEffect(() => {
+    if (cursoId && cursosConEstudiantes.some((curso) => String(curso.id) === String(cursoId))) return
+    setCursoId(String(cursosConEstudiantes[0]?.id || ''))
+  }, [cursoId, cursosConEstudiantes])
+
+  const cursoSeleccionado = cursosConEstudiantes.find((item) => String(item.id) === String(cursoId))
+  const estudiantesCurso = useMemo(() => cursoSeleccionado?.estudiantes || [], [cursoSeleccionado])
+
+  useEffect(() => {
+    if (!cursoSeleccionado) {
+      setNotas([])
+      setAsistencias([])
+      return
+    }
+
     setCargandoReportes(true)
 
     Promise.all([
@@ -46,14 +72,14 @@ export default function Reportes() {
           res.data.map((nota) => ({
             ...nota,
             estudianteNombre: estudiantesCurso[index]?.nombre || nota.estudianteRun,
-            curso: curso.nombre,
+            curso: cursoSeleccionado.nombre,
           }))
         ))
         const asistenciaPlana = resAsistencia.flatMap((res, index) => (
           res.data.map((registro) => ({
             ...registro,
             estudianteNombre: estudiantesCurso[index]?.nombre || registro.estudianteRun,
-            curso: curso.nombre,
+            curso: cursoSeleccionado.nombre,
           }))
         ))
 
@@ -61,14 +87,7 @@ export default function Reportes() {
         setAsistencias(asistenciaPlana)
       })
       .finally(() => setCargandoReportes(false))
-  }, [cursoId, cursos, usuarios])
-
-  const cursoSeleccionado = cursos.find((item) => String(item.id) === String(cursoId))
-  const estudiantesCurso = useMemo(
-    () => usuarios.filter((usuario) => usuario.rol === 'ESTUDIANTE' && usuario.curso === cursoSeleccionado?.nombre),
-    [usuarios, cursoSeleccionado]
-  )
-  const pagosCurso = pagos.filter((pago) => estudiantesCurso.some((estudiante) => estudiante.run === pago.estudianteRun))
+  }, [cursoSeleccionado, estudiantesCurso])
 
   if (loading) return <div className="loading-state">Cargando reportes...</div>
 
@@ -76,21 +95,25 @@ export default function Reportes() {
     <div className="page-content reportes">
       <PageHeader
         title="Reportes"
-        subtitle="Notas, asistencia y pagos por curso"
+        subtitle="Notas y asistencia por curso"
       />
 
       <div className="reportes__filtro">
         <label>Curso</label>
-        <select value={cursoId} onChange={(e) => setCursoId(e.target.value)}>
-          {cursos.map((curso) => <option key={curso.id} value={curso.id}>{curso.nombre}</option>)}
+        <select value={cursoId} onChange={(e) => setCursoId(e.target.value)} disabled={!cursosConEstudiantes.length}>
+          {cursosConEstudiantes.length === 0 ? (
+            <option value="">Sin cursos con estudiantes</option>
+          ) : cursosConEstudiantes.map((curso) => (
+            <option key={curso.id} value={curso.id}>{curso.nombre} ({curso.estudiantes.length})</option>
+          ))}
         </select>
       </div>
 
       <div className="stats-grid reportes__stats">
         <StatCard tone="primario" label="Estudiantes" value={estudiantesCurso.length} />
         <StatCard tone="dorado" label="Notas registradas" value={notas.length} />
-        <StatCard tone="advertencia" label="Asistencias" value={asistencias.length} />
-        <StatCard tone="exito" label="Pagos" value={pagosCurso.length} />
+        <StatCard tone="exito" label="Promedio general" value={promedio(notas)} />
+        <StatCard tone="advertencia" label="Asistencia" value={porcentajeAsistencia(asistencias)} />
       </div>
 
       <section className="reportes__section">
@@ -98,11 +121,13 @@ export default function Reportes() {
         <div className="data-table-wrap">
           <table className="data-table">
             <thead>
-              <tr><th>Estudiante</th><th>Asignatura</th><th>Valor</th><th>Fecha</th><th>Descripción</th></tr>
+              <tr><th>Estudiante</th><th>Asignatura</th><th>Valor</th><th>Fecha</th><th>Descripcion</th></tr>
             </thead>
             <tbody>
               {cargandoReportes ? (
                 <tr><td colSpan="5">Cargando...</td></tr>
+              ) : notas.length === 0 ? (
+                <tr><td colSpan="5">No hay notas registradas para este curso.</td></tr>
               ) : notas.map((nota) => (
                 <tr key={nota.id}>
                   <td>{nota.estudianteNombre}</td>
@@ -127,35 +152,14 @@ export default function Reportes() {
             <tbody>
               {cargandoReportes ? (
                 <tr><td colSpan="4">Cargando...</td></tr>
+              ) : asistencias.length === 0 ? (
+                <tr><td colSpan="4">No hay asistencias registradas para este curso.</td></tr>
               ) : asistencias.map((registro) => (
                 <tr key={registro.id}>
                   <td>{registro.estudianteNombre}</td>
                   <td>{registro.fecha}</td>
                   <td>{registro.estado}</td>
-                  <td>{registro.justificada ? 'Sí' : 'No'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="reportes__section">
-        <h2>Pagos</h2>
-        <div className="data-table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr><th>Estudiante</th><th>Tipo</th><th>Monto</th><th>Fecha</th><th>Estado</th><th>Año</th></tr>
-            </thead>
-            <tbody>
-              {pagosCurso.map((pago) => (
-                <tr key={pago.id}>
-                  <td>{usuarios.find((usuario) => usuario.run === pago.estudianteRun)?.nombre || pago.estudianteRun}</td>
-                  <td>{pago.tipo}</td>
-                  <td>{money(pago.monto)}</td>
-                  <td>{pago.fecha}</td>
-                  <td>{pago.estado}</td>
-                  <td>{pago.anoAcademico}</td>
+                  <td>{registro.justificada ? 'Si' : 'No'}</td>
                 </tr>
               ))}
             </tbody>

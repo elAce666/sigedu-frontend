@@ -1,5 +1,5 @@
 // =============================================================
-// REUNIONES Y CALENDARIO (ADMIN/DIRECTIVO) — pages/Reuniones
+// REUNIONES Y CALENDARIO (ADMIN/DIRECTIVO) - pages/Reuniones
 // =============================================================
 // Conectada a los microservicios reales de reuniones (8082) y
 // calendario (8084): reuniones generales, citaciones a apoderados
@@ -61,7 +61,7 @@ export default function Reuniones() {
       if (tab === 'generales') await crearReunionGeneral(data)
       else if (tab === 'apoderados') await crearReunionApoderado(data)
       else await crearEvento(data)
-      toast.success(tab === 'eventos' ? 'Evento creado' : 'Reunión agendada')
+      toast.success(tab === 'eventos' ? 'Evento creado' : 'Reunion agendada')
       setModalAbierto(false)
       reset()
       cargar()
@@ -71,7 +71,7 @@ export default function Reuniones() {
   }
 
   const onEliminar = async (id) => {
-    if (!confirm('¿Eliminar este registro?')) return
+    if (!confirm('Eliminar este registro?')) return
     try {
       if (tab === 'generales') await eliminarReunionGeneral(id)
       else if (tab === 'apoderados') await eliminarReunionApoderado(id)
@@ -94,7 +94,7 @@ export default function Reuniones() {
         subtitle="Agenda institucional: reuniones generales, citaciones a apoderados y eventos"
         action={
           <button className="btn-primary" onClick={abrirNuevo}>
-            <RiAddLine /> {tab === 'eventos' ? 'Nuevo evento' : 'Nueva reunión'}
+            <RiAddLine /> {tab === 'eventos' ? 'Nuevo evento' : 'Nueva reunion'}
           </button>
         }
       />
@@ -146,14 +146,14 @@ export default function Reuniones() {
 
         {tab === 'eventos' && (
           <table className="data-table">
-            <thead><tr><th>Fecha</th><th>Horario</th><th>Evento</th><th>Tipo</th><th>Ubicación</th><th></th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Horario</th><th>Evento</th><th>Tipo</th><th>Ubicacion</th><th></th></tr></thead>
             <tbody>
               {eventos.length === 0 ? (
                 <tr><td colSpan={6} className="text-suave">Sin eventos en el calendario.</td></tr>
               ) : eventos.map((e) => (
                 <tr key={e.id}>
                   <td>{e.fechaInicio}</td>
-                  <td>{e.horaInicio} — {e.horaFin}</td>
+                  <td>{e.horaInicio} - {e.horaFin}</td>
                   <td>{e.nombre}</td>
                   <td><span className="nota-pill nota-pill--ok">{e.tipo}</span></td>
                   <td>{e.ubicacion}</td>
@@ -169,7 +169,7 @@ export default function Reuniones() {
 
       {modalAbierto && (
         <Modal
-          title={tab === 'generales' ? 'Nueva reunión general' : tab === 'apoderados' ? 'Nueva citación a apoderado' : 'Nuevo evento'}
+          title={tab === 'generales' ? 'Nueva reunion general' : tab === 'apoderados' ? 'Nueva citacion a apoderado' : 'Nuevo evento'}
           onClose={() => setModalAbierto(false)}
         >
           <form onSubmit={handleSubmit(onGuardar)}>
@@ -189,7 +189,7 @@ export default function Reuniones() {
                     <label>Apoderado</label>
                     <select {...register('apoderadoRun', { required: 'Selecciona un apoderado' })}>
                       {apoderados.map((a) => (
-                        <option key={a.run} value={a.run}>{a.nombre} — {a.runCompleto || a.run}</option>
+                        <option key={a.run} value={a.run}>{a.nombre} - {a.runCompleto || a.run}</option>
                       ))}
                     </select>
                   </div>
@@ -223,24 +223,24 @@ export default function Reuniones() {
                   <input type="time" {...register('horaInicio', { required: 'Campo obligatorio' })} />
                 </div>
                 <div className="form-group">
-                  <label>Hora término</label>
+                  <label>Hora termino</label>
                   <input type="time" {...register('horaFin', { required: 'Campo obligatorio' })} />
                 </div>
                 <div className="form-group">
                   <label>Tipo</label>
                   <select {...register('tipo', { required: true })}>
-                    <option value="ACADEMICO">Académico</option>
+                    <option value="ACADEMICO">Academico</option>
                     <option value="ACTO">Acto</option>
-                    <option value="REUNION">Reunión</option>
-                    <option value="CELEBRACION">Celebración</option>
+                    <option value="REUNION">Reunion</option>
+                    <option value="CELEBRACION">Celebracion</option>
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Ubicación</label>
+                  <label>Ubicacion</label>
                   <input type="text" {...register('ubicacion')} />
                 </div>
                 <div className="form-group">
-                  <label>Descripción</label>
+                  <label>Descripcion</label>
                   <input type="text" {...register('descripcion')} />
                 </div>
               </>

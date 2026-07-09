@@ -1,5 +1,5 @@
 // =============================================================
-// SERVICIO DE REUNIONES Y CALENDARIO — services/reunionService.js
+// SERVICIO DE REUNIONES Y CALENDARIO - services/reunionService.js
 // =============================================================
 // Conectado a los microservicios reales:
 //   reuniones  (8082): /api/reuniones/generales, /api/reuniones/apoderados

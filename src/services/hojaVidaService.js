@@ -1,13 +1,13 @@
 // =============================================================
-// SERVICIO HOJA DE VIDA — services/hojaVidaService.js
+// SERVICIO HOJA DE VIDA - services/hojaVidaService.js
 // =============================================================
 // Conectado al microservicio real de convivencia (8085):
 //   GET  /api/convivencia/anotaciones/estudiante/{run}
 //   POST /api/convivencia/anotaciones
 // El backend registra anotaciones con tipo OBSERVACION_POSITIVA /
-// OBSERVACION_NEGATIVA y toma el autor del token JWT; aquí se
+// OBSERVACION_NEGATIVA y toma el autor del token JWT; aqui se
 // adapta a la forma { tipo: 'positiva'|'negativa', detalle, autor }
-// que consumen las páginas.
+// que consumen las paginas.
 // =============================================================
 import http from './httpClient'
 import { getAllUsuarios } from './usuarioService'

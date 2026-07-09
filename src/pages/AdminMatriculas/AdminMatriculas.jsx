@@ -1,8 +1,8 @@
 // =============================================================
-// GESTIÓN DE MATRÍCULA (ADMIN/DIRECTIVO) — pages/AdminMatriculas
+// GESTION DE MATRICULA (ADMIN/DIRECTIVO) - pages/AdminMatriculas
 // =============================================================
-// Conectada al microservicio real de matrícula (8088): listar,
-// inscribir y anular matrículas de estudiantes en cursos reales
+// Conectada al microservicio real de matricula (8088): listar,
+// inscribir y anular matriculas de estudiantes en cursos reales
 // de academica (8083).
 // =============================================================
 import { useState, useEffect } from 'react'
@@ -33,7 +33,7 @@ export default function AdminMatriculas() {
         setCursos(resC.data)
         setPeriodos(resP.data)
       })
-      .catch(() => toast.error('No se pudieron cargar las matrículas'))
+      .catch(() => toast.error('No se pudieron cargar las matriculas'))
       .finally(() => setLoading(false))
   }
 
@@ -42,27 +42,27 @@ export default function AdminMatriculas() {
   const onGuardar = async (data) => {
     try {
       await crearMatricula(data)
-      toast.success('Matrícula registrada')
+      toast.success('Matricula registrada')
       setModalAbierto(false)
       reset()
       cargar()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'No se pudo registrar la matrícula')
+      toast.error(err.response?.data?.error || 'No se pudo registrar la matricula')
     }
   }
 
   const onEliminar = async (id) => {
-    if (!confirm('¿Anular esta matrícula?')) return
+    if (!confirm('Anular esta matricula?')) return
     try {
       await eliminarMatricula(id)
-      toast.success('Matrícula anulada')
+      toast.success('Matricula anulada')
       cargar()
     } catch {
-      toast.error('No se pudo anular la matrícula')
+      toast.error('No se pudo anular la matricula')
     }
   }
 
-  if (loading) return <div className="loading-state">Cargando matrículas...</div>
+  if (loading) return <div className="loading-state">Cargando matriculas...</div>
 
   const nombreEstudiante = (run) => estudiantes.find((e) => e.run === run)?.nombre || run
   const nombreCurso = (id) => cursos.find((c) => c.id === id)?.nombre || `Curso ${id}`
@@ -71,13 +71,13 @@ export default function AdminMatriculas() {
   return (
     <div className="page-content">
       <PageHeader
-        title="Gestión de Matrícula"
-        subtitle="Inscripción de estudiantes en cursos del año académico"
-        action={<button className="btn-primary" onClick={() => setModalAbierto(true)}><RiAddLine /> Nueva matrícula</button>}
+        title="Gestion de Matricula"
+        subtitle="Inscripcion de estudiantes en cursos del anio academico"
+        action={<button className="btn-primary" onClick={() => setModalAbierto(true)}><RiAddLine /> Nueva matricula</button>}
       />
 
       <div className="stats-grid">
-        <StatCard icon={<RiFileList3Line />} label="Matrículas registradas" value={matriculas.length} tone="primario" />
+        <StatCard icon={<RiFileList3Line />} label="Matriculas registradas" value={matriculas.length} tone="primario" />
         <StatCard icon={<RiUserLine />} label="Estudiantes en el sistema" value={estudiantes.length} tone="exito" />
         <StatCard icon={<RiFileList3Line />} label="Cursos disponibles" value={cursos.length} tone="dorado" />
       </div>
@@ -85,11 +85,11 @@ export default function AdminMatriculas() {
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr><th>Estudiante</th><th>RUN</th><th>Curso</th><th>Periodo</th><th>Año</th><th>Estado</th><th></th></tr>
+            <tr><th>Estudiante</th><th>RUN</th><th>Curso</th><th>Periodo</th><th>Anio</th><th>Estado</th><th></th></tr>
           </thead>
           <tbody>
             {matriculas.length === 0 ? (
-              <tr><td colSpan={7} className="text-suave">Aún no hay matrículas registradas.</td></tr>
+              <tr><td colSpan={7} className="text-suave">Aun no hay matriculas registradas.</td></tr>
             ) : matriculas.map((m) => (
               <tr key={m.id}>
                 <td>{nombreEstudiante(m.estudianteRun)}</td>
@@ -108,13 +108,13 @@ export default function AdminMatriculas() {
       </div>
 
       {modalAbierto && (
-        <Modal title="Nueva matrícula" onClose={() => setModalAbierto(false)}>
+        <Modal title="Nueva matricula" onClose={() => setModalAbierto(false)}>
           <form onSubmit={handleSubmit(onGuardar)}>
             <div className="form-group">
               <label>Estudiante</label>
               <select {...register('estudianteRun', { required: 'Selecciona un estudiante' })}>
                 {estudiantes.map((e) => (
-                  <option key={e.run} value={e.run}>{e.nombre} — {e.runCompleto || e.run}</option>
+                  <option key={e.run} value={e.run}>{e.nombre} - {e.runCompleto || e.run}</option>
                 ))}
               </select>
               {errors.estudianteRun && <span className="error-msg">{errors.estudianteRun.message}</span>}
@@ -136,7 +136,7 @@ export default function AdminMatriculas() {
               </select>
             </div>
             <div className="form-group">
-              <label>Año académico</label>
+              <label>Anio academico</label>
               <input type="number" defaultValue={new Date().getFullYear()}
                 {...register('anioAcademico', { required: 'Campo obligatorio' })} />
             </div>
@@ -149,7 +149,7 @@ export default function AdminMatriculas() {
               </select>
             </div>
             <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ width: '100%', justifyContent: 'center' }}>
-              {isSubmitting ? 'Guardando...' : 'Registrar matrícula'}
+              {isSubmitting ? 'Guardando...' : 'Registrar matricula'}
             </button>
           </form>
         </Modal>

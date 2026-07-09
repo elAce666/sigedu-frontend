@@ -70,7 +70,7 @@ export default function AdminPagos() {
   }
 
   const onEliminar = async (id) => {
-    if (!confirm('¿Eliminar este registro de pago?')) return
+    if (!confirm('Eliminar este registro de pago?')) return
     try {
       await eliminarPago(id)
       toast.success('Pago eliminado')
@@ -88,7 +88,7 @@ export default function AdminPagos() {
     <div className="page-content admin-pagos">
       <PageHeader
         title="Pagos"
-        subtitle="Registro de matrícula y mensualidades por estudiante"
+        subtitle="Registro de matricula y mensualidades por estudiante"
         action={<button className="btn-primary" onClick={abrirNuevo}><RiAddLine /> Nuevo pago</button>}
       />
 
@@ -103,7 +103,7 @@ export default function AdminPagos() {
       <div className="data-table-wrap">
         <table className="data-table">
           <thead>
-            <tr><th>Estudiante</th><th>Tipo</th><th>Monto</th><th>Fecha</th><th>Estado</th><th>Año</th><th></th></tr>
+            <tr><th>Estudiante</th><th>Tipo</th><th>Monto</th><th>Fecha</th><th>Estado</th><th>Anio</th><th></th></tr>
           </thead>
           <tbody>
             {pagosFiltrados.map((pago) => (
@@ -156,7 +156,7 @@ export default function AdminPagos() {
                 {errors.monto && <span className="error-msg">{errors.monto.message}</span>}
               </div>
               <div className="form-group">
-                <label>Año académico</label>
+                <label>Anio academico</label>
                 <input type="number" min="2000" {...register('anoAcademico', { required: 'Campo obligatorio', valueAsNumber: true })} />
                 {errors.anoAcademico && <span className="error-msg">{errors.anoAcademico.message}</span>}
               </div>
